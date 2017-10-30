@@ -128,6 +128,66 @@ def color_line_bis(line, line_sequence):
 	print(T)
 	return T[-1][-1]
 
+def coloration(A, sequences):
+	lines_to_see = [i for i in range(len(A))]
+	columns_to_see = [i for i in range(len(A[0]))]
+
+	
+
+	while lines_to_see or columns_to_see:
+		for i in lines_to_see:
+			new_to_see = []
+			for j in range(len(A[i])):
+				can_colour = [False, False]
+				if A[i][j] == const.NOT_COLORED:
+					A[i][j] = const.WHITE
+					can_colour[const.WHITE] = colour_line_bis(A[i], sequences[const.LINES][i])
+					A[i][j] = const.BLACK
+					can_colour[const.BLACK] = colour_line_bis(A[i], sequences[const.LINES][i])
+
+					if (can_colour[const.WHITE]) and (not can_colour[const.BLACK]):
+						A[i][j] = const.WHITE
+						new_to_see += [j]
+					elif (can_colour[const.BLACK]) and (not can_colour[const.WHITE]):
+						A[i][j] = const.BLACK
+						new_to_see += [j]
+					elif (can_colour[const.WHITE]) and (can_colour[const.BLACK]):
+						A[i][j] = const.NOT_COLORED
+					else:
+						return null #pas de solution
+	
+		
+			columns_to_see = list(set().union(columns_to_see, new_to_see))
+		
+		lines_to_see = []
+		
+		for j in columns_to_see:
+			new_to_see = []
+			for i in range(len(np.transpose(A)[j])):
+				can_colour = [False, False]
+				if A[i][j] == const.NOT_COLORED:
+					A[i][j] = const.WHITE
+					can_colour[const.WHITE] = colour_line_bis(np.transpose(A)[j], sequences[const.COLUMNS][j])
+					A[i][j] = const.BLACK
+					can_colour[const.BLACK] = colour_line_bis(np.transpose(A)[j], sequences[const.COLUMNS][j]) 
+					if (can_colour[const.WHITE]) and (not can_colour[const.BLACK]):
+						A[i][j] = const.WHITE
+						new_to_see += [i]
+					elif (can_colour[const.BLACK]) and (not can_colour[const.WHITE]):
+						A[i][j] = const.BLACK
+						new_to_see += [i]
+					elif (can_colour[const.WHITE]) and (can_colour[const.BLACK]):
+						A[i][j] = const.NOT_COLORED
+					else:
+						return null #pas de solution
+
+		
+			lines_to_see = list(set().union(lines_to_see, new_to_see))
+		
+		columns_to_see = []
+		
+	return A 
+
 
 #Quelques testes - TODO 29.1.2017: à nettoyer/organiser
 sequences = read_file("0.txt")
@@ -139,12 +199,14 @@ nb_columns = len(sequences[1])
 T = color_line(nb_columns, sequences[0][2])
 print(T)
 
+#appel de la fonction coloration
+A = np.full((nb_lines, nb_columns), const.NOT_COLORED)
+coloration(A, sequences)
 
-#pour visualiser la coloriage - utile peut être dans la suite, le test ici ne donne pas de sens, 
-#c'était juste pour comprendre comment peut-on faire se genre de graphique...
-"""
+#pour visualiser la coloriage
+
 plt.subplot(211)
-plt.imshow(T, cmap = "Greys", interpolation = "nearest")
+plt.imshow(A, cmap = "Greys", interpolation = "nearest")
 ax = plt.gca()
 
 # Major ticks
@@ -157,7 +219,7 @@ ax.set_yticks(np.arange(-.5, nb_lines, 1), minor=True);
 
 ax.grid(which = "minor", color='grey', linestyle='-', linewidth=2)
 plt.show()
-"""
+
 
 
 line = [-1 for i in range(nb_columns)]
