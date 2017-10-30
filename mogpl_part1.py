@@ -85,7 +85,7 @@ def color_line_bis(line, line_sequence):
 
 	#si la séquence est vide (aucun bloc), on renvoie directement True
 	if not line_sequence:
-		return True
+		return (const.BLACK not in line)
 	
 	#sinon:
 	line_length = len(line)  
