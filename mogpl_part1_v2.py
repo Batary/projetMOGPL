@@ -99,9 +99,8 @@ def colour_line_bis(line, line_sequence):
 
 	#Cas où on considère 0 blocs
 	for j in range(line_length):
-		T[j][0] = (const.BLACK not in line)
-
-	
+		T[j][0] = (const.BLACK not in line[0:j+1])
+		
 	for j in range(line_length):
 		if j < line_sequence[0]-1: # -1 oublié!!!! Maintenant, ça devrait marcher
 			T[j][1] = False
