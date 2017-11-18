@@ -85,61 +85,80 @@ def colour_line(line_length, line_sequence):
  	@return : True si possible de colorier toute la ligne avec toutes les blocs, False sinon
 """
 
-
 def colour_line_bis(line, line_sequence):
 	#si la séquence est vide (aucun bloc), la réponse est TRUE ssi il n'y a pas de case déjà coloriée à noir.
 	if not line_sequence:
 		return (const.BLACK not in line)
-		
 	
+	# si la ligne est entièrement colorée, il suffit de vérifier si le nombre de colonnes noires égale à la somme des longueure des blocs
+	# en effet, si cette fonction reçoit la ligne totalement colorée, cela signifie qu'on est en train de tester si la dernière case non colorée 
+	# peut etre noire ou blanche, sqchqnt que les autres cases sont colorées de la bonne manière	(UNIQUE); grace à cette unicité, la réponse est OUI
+	# si et seulement si la somme des cases noires est bonne  
+	if (const.NOT_COLORED not in line):
+		return (list(line).count(const.BLACK) == sum(line_sequence))
+
 	#sinon:
 	line_length = len(line)  
 	T = np.zeros((line_length, len(line_sequence)+1)) #T[j][l] = True si possible de colorier j+1 premières cases avec l premiers blocs, False sinon
 	
 
-	#Cas où on considère 0 blocs
+	#Cas où on considère 0 blocs:
 	for j in range(line_length):
-		T[j][0] = (const.BLACK not in line[0:j+1])
-		
-	for j in range(line_length):
-		if j < line_sequence[0]-1: # -1 oublié!!!! Maintenant, ça devrait marcher
-			T[j][1] = False
-		else:
-			#print("j = ", j)
-			last_black = const.WHITE not in line[j - line_sequence[0]+1:j+1]
-			#print("last black: ",last_black)
-			box_before = (j-line_sequence[0] < 0) or (j-line_sequence[0] >= 0 and line[j - line_sequence[0]] != const.BLACK)
-			#print("box before: ", box_before)
-			box_after = (j+1 >= line_length) or (j+1 < line_length and line[j+1] != const.BLACK)
-			#print("box after: ", box_after)
-			T[j][1] = last_black and box_before and box_after and (list(line[0:j+1]).count(const.BLACK) <= line_sequence[0])
-			T[j][1] = T[j][1] or (T[j-1][1] and line[j] != const.BLACK) 
-	#print("Fin cas 1 bloc, T = ", T)
-	#On considère enfin plus qu'un bloc:
-	for l in range(2, len(line_sequence)+1):
-		#print(T)
-		for j in range(line_length):
-			if j < sum(line_sequence[0:l]): #si la somme des longueurs des blocs est plus grand que le nombre de cases considérés, T[j][l] est fausse
-				T[j][l] = False
-			else:
-				#print("l et j: ",l, j)
-				#soit le dernier bloc finit sur la dernière case considéré:
-				last_black = const.WHITE not in line[j - line_sequence[l-1]+1:j+1]
-				#print("last black: ",last_black)
-				box_before = (j-line_sequence[l-1] < 0) or (j-line_sequence[l-1] >= 0 and line[j - line_sequence[l-1]] != const.BLACK)
-				#print("box before: ", box_before)
-				box_after = (j+1 >= line_length) or (j+1 < line_length and line[j+1] != const.BLACK)
-				#print("box after: ", box_after)
-				recurence = ((j - line_sequence[l-1] > 0)  and (T[j - line_sequence[l-1] -1][l-1])) or (j - line_sequence[l-1] <= 0) 
-				#print("recurrence: ", recurence)
-				T[j][l] = last_black and box_before and box_after and recurence and (list(line[0:j+1]).count(const.BLACK) <= sum(line_sequence[0:l])) and (list(line[j+1:]).count(const.BLACK) <= sum(line_sequence[l:]))
-				#print("T[j][l]: ", T[j][l])
-				#soit le dernier bloc finit avant:
-				T[j][l] = T[j][l] or (T[j-1][l] and line[j] != const.BLACK) 
-				#print(T[j][l])
+		#on peut colorier j+1 premieres cases avec 0 blocs ssi il n'y a pas de case noire (qui imposerait une présence d'un bloc)
+		T[j][0] = const.BLACK not in line[0:j+1]   
+	
+	
+	#Cas 2a
+	for l in range(len(line_sequence)): #l correspond à (l+1) blocs considérés
+		for j in range(0, sum(line_sequence[0:l+1])+l-1):
+			#si j est < la somme des longueurs des (l+1) blocs considérés + l (si l+1 blocs, au moins l cases de plus pour les séparer),
+			#les blocs ne rentrent pas - T[j][l+1] est fausse 
+			T[j][l+1] = False
+
+	#Cas 2b
+	#si on considère un seul bloc: T[j][1] = 1 si j+1 est la longueur du bloc et il n'y a pas de cases blanches
+	j = line_sequence[0]-1
+	T[j][1] = (const.WHITE not in line[0:j+1]) and (line_length <= line_sequence[0] or line[j+1] != const.BLACK)
+	
+	#sinon, si on considère plus qu'un bloc, la réponse sera toujours FAUX 
+	#TODO 18.11.: je trouve que cette condition est un peu redondant si on a remplacé dans Cas 2a line_sequence[l]-1 par sum(line_sequence[0:l+1])+l-1,
+	#ce qui est d'ailleurs beuacoup plus efficace! A vérifier et éventuellement supprimer
+	for l in range(1, len(line_sequence)):
+		j = line_sequence[l]-1
+		T[j][l+1] = False
+
+	#Cas 2c - on considère au moins un bloc, et j >= sum(line_sequence[0:l+1])+l-1
+	for l in range(len(line_sequence)): #pour chacun des blocs l correspond à l+1 blocs considérés
+		for j in range(sum(line_sequence[0:l+1])+l-1, line_length): #pour toutes les valeurs de j pas encore traitées
 			
-	#print(T)
+			#Soit le dernier bloc se termine sur la derniere case considerée :
+			
+			#1) La derniere case ne peut pas etre blanc, ainsi que les cases precedentes qui forment le bloc:
+			last_black = const.WHITE not in (line[j-line_sequence[l]+1:j+1])
+			#2) La case avant soit n'existe pas, soit elle n'est pas coloriée au noir.
+			box_before = (j-line_sequence[l]<0 or line[j-line_sequence[l]] != const.BLACK)
+			#3) La case aprés soit n'existe pas, soit elle n'est pas coloriée au noir
+			box_after = (line_length == j+1 or line[j+1] != const.BLACK)
+			#4) La rélation de récursion est bien vérifiée - on peut remplire les cases avant le début de ce bloc (et avant la case "de séparation") 
+			#avec l blocs précédentes
+			rec = (l== 0 or (j- line_sequence[l] - 1 >= 0 and T[j-line_sequence[l]-1][l]))
+			
+			#Le dernier bloc peut finir sur la case j ssi 
+			#	- toutes les conditions 1-4 sont vérifiées
+			#	- de plus, la somme des cases noires après la case j+1 (on finit sur j, il faut pas oublier la séparation) ne dépasse pas la somme des longueurs des blocs suivants
+			#	- de plus, la somme des cases noires avant le début de ce dernier bloc ne dépasse pas la somme des longueurs des blocs précédents
+			ends_by_black = last_black and box_before and box_after and rec and (list(line[j+2:]).count(const.BLACK) <= sum(line_sequence[l+1:])) and (list(line[0:(j-line_sequence[l]+1)]).count(const.BLACK) <= sum(line_sequence[0:l]))
+			
+			#Soit le dernier bloc se termine avant la dernière case considérée:
+			# la dernière case ne peut pas être noire, on doit être capable de rentrer les blocs dans les cases précedentes
+			# - et de plus, on calcule les cases noires avant/après de façon analogue qu'avant
+			ends_by_white = ((line[j] != const.BLACK) and T[j-1][l+1]) and (list(line[j+1:]).count(const.BLACK) <= sum(line_sequence[l+1:])) and (list(line[0:j]).count(const.BLACK) <= sum(line_sequence[0:l+1]))
+			
+			#ENFIN, T[j][l+1] vrai si au moins une des deux confgurations ci-dessus possible
+			T[j][l+1] = (ends_by_white or ends_by_black)  
+
 	return T[-1][-1]
+
 
 def coloration(A, sequences):
 	lines_to_see = [i for i in range(len(A))]
