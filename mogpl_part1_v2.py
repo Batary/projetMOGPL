@@ -220,8 +220,8 @@ def coloration(A, sequences):
 
 
 #Quelques testes - TODO 29.1.2017: à nettoyer/organiser
-num = 10
-sequences = read_file(str(num)+".txt")
+num = 9
+sequences = read_file("instances/" + str(num)+".txt")
 print("Contenu du fichier: ",sequences)
 
 nb_lines = len(sequences[0])
