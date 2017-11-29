@@ -20,11 +20,72 @@ Si on a calculé tous les $T(i,j)$, la case $T(m-1, k)$ nous indique si on peut 
 		\item[(b)] $j = s_l -1 \Leftrightarrow j+1 = s_l$, ce qui signifie que la longueur du dernier bloc est exactement égale au nombre de cases à colorier. On en déduit que $T(j,1) = TRUE$ et $T(j,l) = FALSE$ pour $l > 1$. 
 	\end{itemize}
 \end{itemize}
-\noindent 
-\textbf{Q3}
+\noindent
+\textbf{Q3} \\
 On considère dans cette question le dernier cas non traité, c'est à dire le cas où $l \geq 1, j > s_l -1$. Il y a deux possibilités: 
 \begin{itemize}
 	\item Soit la case $(i,j)$ restera blanche après la coloration, dans quel cas $T(j,l) = T(j-1,l)$. 
 	\item Soit la case $(i,j)$ sera noire après la coloration, ce qui signifie que le bloc $s_l$ se termine à la case $(i,j)$. On en déduit qu'il commence à la case $(i, j - (s_l -1))$. Les blocs étant séparés par au moins une case blanche, la case $(i, j-s_l)$ sera blanche. Si $j-s_l > 0$, alors $T(j, l) = T(j-s_l -1, l-1)$. Si $j-s_l = 0$, alors $T(j,l) = TRUE$ si et seulement si $l = 1$.  
 \end{itemize}  
+\subsection{Généralisation}
+\noindent\textbf{Q5} \\
+\begin{itemize}
+	\item[1.] Si $l = 0$ et $j \in \lbrace 0, \hdots, m-1 \rbrace$: On peut colorier $j+1$ premières cases avec 0 blocs si aucune de cases $0, \hdots, j$ n'est pas déjà coloriée à noir (ce qui imposerait une présence d'un bloc, ou au moins de sa partie). \\
+	\item[2.] On suppose maintenant $l \geq 1$.
+	\begin{itemize}
+		\item[(a)] $j < s_l - 1 \Rightarrow T(j,l) = FALSE $ pour le même raison que précédamment.
+		\item[(b)] $j = s_l$ \textbf{A FINIR PLUS TARD!!! (J'ai la flemme...)}
+	\end{itemize}
+\end{itemize}
+\noindent 
+\textbf{Q8}
+\\
+\noindent
+Voici le tableau des temps de résolution pour les instances 1-10: \\ \\
+\begin{tabular}{|c|c|}
+\hline
+numéro d'instance & temps de résolution [s]\\
+\hline
+\hline
+1  & 0.013\\
+\hline
+2 & 5.8\\
+\hline
+3 & 4.2\\
+\hline
+4 & 10.7\\
+\hline
+5 & 7.7\\
+\hline
+6 & 22.7\\
+\hline
+7 & 10.7\\
+\hline
+8 & 18.5\\
+\hline
+9 & 342.7\\
+\hline
+10 & 349.2\\
+\hline
+\end{tabular}
+\newpage
+\section{La PLNE}
+\subsection{Modélisation}
+\noindent
+\textbf{Q10} \\
+\noindent
+Soit $l_i$ la i-ième ligne avec une séquence associée $(s_1, \hdots ,s_k)$. Si le bloc $t$ de longueur $s_t$ commence par la case $(i,j)$, alors les cases $(i,j)$ à $(i,j+s_t-1)$ doivent être noires, ce qui s'exprime comme: $$ y_{ij}^{t} \leq \frac{\sum_{l = j}^{j+s_t-1} x_{il}}{s_t}$$\\ 
+\noindent
+De manière analogue, on a pour la j-ième colonne $c_j$ possédant la séquence $(s'_{1}, \hdots , s'_{k'})$ : 
+$$ z_{ij}^{t} \leq \frac{\sum_{l = i}^{i+s'_t-1} x_{lj}}{s_t}$$
+\textbf{Q11} \\
+Avec les notations de la question précédente, on souhaite d'exprimer le fait que si le bloc $t$ de la i-ième ligne commence à la case $(i,j)$, alors le $(t+1)$-ième bloc ne peut pas commencer avant la case $(i, j+ s_t +1)$. Ce qui se formule par: 
+$$ y_{ij}^t \leq \sum_{l = j+s_t+1}^N y_{il}^{t+1} , t \in \lbrace 1, \hdots, k-1 \rbrace$$
+\noindent
+De manière analogue, on obtient pour les colonnes: 
+$$ z_{ij}^t \leq \sum_{l = j+s_t+1}^M y_{lj}^{t+1} , t \in \lbrace 1, \hdots, k'-1 \rbrace$$
+\textbf{Q12} \\
+\subsection{Implantations et tests}
+\noindent
+\textbf{Q13}
 \end{document}
