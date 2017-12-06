@@ -75,7 +75,6 @@ def get_model(sequences):
 	nbcolumns = len(sc)
 	
 	# declaration des variables
-	# TODO réduire le nombre de variables
 	x = []
 	y = []
 	z = []
@@ -86,21 +85,30 @@ def get_model(sequences):
 		for j in range(nbcolumns):
 			# xij
 			x[i].append(m.addVar(vtype=GRB.BINARY, lb=0, name="x(%d,%d)" % (i, j)))
-			
 			y[i].append([])
 			z[i].append([])
 			
 			# parcours des sequences de la ligne i
 			for t in range(len(sl[i])):
 				# yijt
-				y[i][j].append(m.addVar(vtype=GRB.BINARY, lb=0, name="y(%d,%d,%d)" % (i, j, t)))
+				if sum(sl[i][:t]) + t <= j and sum(sl[i][t:]) + len(sl[i]) - (t+1) <= nbcolumns - j:
+					y[i][j].append(m.addVar(vtype=GRB.BINARY, lb=0, name="y(%d,%d,%d)" % (i, j, t)))
+				else:
+					y[i][j].append(0)
 			
 			# parcours des sequences de la colonne j
 			for t in range(len(sc[j])):
 				# zijt
-				z[i][j].append(m.addVar(vtype=GRB.BINARY, lb=0, name="z(%d,%d,%d)" % (i, j, t)))
+				if sum(sc[j][:t]) + t <= i and sum(sc[j][t:]) + len(sc[j]) - (t+1) <= nblines - i:
+					z[i][j].append(m.addVar(vtype=GRB.BINARY, lb=0, name="z(%d,%d,%d)" % (i, j, t)))
+				else:
+					z[i][j].append(0)
+					
+			# pour t variant de 0 a nb_blocks dans la ligne/colonne :
+			# si sum(block[t]) + t < i : yijt = 0
+			# si sum(block[t]) + t < j : zijt = 0
+			# --> on peut retirer ces éléments du modèle
 	
-	# contraintes
 	# maj du modele pour integrer les nouvelles variables
 	m.update()
 	
@@ -113,9 +121,13 @@ def get_model(sequences):
 	# Definition des contraintes
 	for i in range(nblines):
 		
-		# un bloc ne doit apparaitre qu'une seule fois sur une ligne
 		for t in range(len(sl[i])):
+			# un bloc ne doit apparaitre qu'une seule fois sur une ligne
 			m.addConstr(sum([y[i][j][t] for j in range(nbcolumns)]) == 1)
+			
+		# il doit y avoir le bon nombre de cases par ligne
+		m.addConstr(sum(x[i][:]) - sum(sl[i]) == 0)
+		
 		
 		for j in range(nbcolumns):
 			
@@ -129,8 +141,8 @@ def get_model(sequences):
 				# si le bloc t demarre a la position j, alors les cases qui suivent doivent etre noires sur la longueur du bloc
 				if nbcolumns >= j + sl[i][t]:
 					m.addConstr(y[i][j][t] - sum([x[i][j + k] for k in range(sl[i][t])]) / sl[i][t] <= 0)
-				else:
-					m.addConstr(y[i][j][t] == 0)  # a enlever en retirant les variables
+				# else:
+				# 	m.addConstr(y[i][j][t] == 0)  # a enlever en retirant les variables
 				
 				# for k in range(sl[i][t]):
 				# 	# le bloc t+1 doit etre a au moins st+1 cases du bloc t
@@ -147,8 +159,8 @@ def get_model(sequences):
 				# si le bloc t demarre a la position i, alors les cases qui suivent doivent etre noires sur la longueur du bloc
 				if nblines >= i + sc[j][t]:
 					m.addConstr(z[i][j][t] - sum([x[i + k][j] for k in range(sc[j][t])]) / sc[j][t] <= 0)
-				else:
-					m.addConstr(z[i][j][t] == 0)  # a enlever en retirant les variables
+				# else:
+				# 	m.addConstr(z[i][j][t] == 0)  # a enlever en retirant les variables
 				
 				# for k in range(sc[j][t]):
 				# 	# le bloc t+1 doit etre a au moins st+1 cases du bloc t
@@ -159,14 +171,11 @@ def get_model(sequences):
 		# un bloc ne doit apparaitre qu'une seule fois sur une colonne
 		for t in range(len(sc[j])):
 			m.addConstr(sum([z[i][j][t] for i in range(nblines)]) == 1)
-	
-	
-	# Q13
-	# pour t variant de 0 a nb_blocks dans la ligne/colonne :
-	# si sum(block[t]) + t < i : yijt = 0
-	# si sum(block[t]) + t < j : zijt = 0
-	# --> on peut retirer ces éléments du modèle
-	
+			
+		# il doit y avoir le bon nombre de cases par ligne
+		# print(sum(sc[j]))
+		m.addConstr(sum([x[i][j] for i in range(nblines)]) - sum(sc[j]) == 0)
+		
 	return m, x, y, z
 
 
@@ -190,10 +199,7 @@ def printfigure(x):
 	nb_lines = len(x)
 	nb_columns = len(x[0])
 	A = [[x[i][j].x for j in range(nb_columns)] for i in range(nb_lines)]
-	# print(x)
-	# print(A)
-	# A[0][0] = 0
-	# A[0][1] = 1
+	
 	plt.imshow(A, cmap="Greys", interpolation="nearest")
 	# plt.rcParams["figure.figsize"] = (50,50)
 	ax = plt.gca()
@@ -216,7 +222,7 @@ def printfigure(x):
 # plt.savefig(str(st) + "image" + str(num) + ".png")
 
 
-m, x, y, z = (get_model(read_file("instances/1.txt")))
+m, x, y, z = (get_model(read_file("instances/16.txt")))
 solve(m)
 
 # for i in range(len(y)):
