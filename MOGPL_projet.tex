@@ -4,6 +4,7 @@
 \usepackage[T1]{fontenc}
 \usepackage{amsmath}
 \usepackage{amsfonts}
+\usepackage{float}
 \usepackage{amssymb}
 \usepackage{graphicx}
 \begin{document}
@@ -67,14 +68,22 @@ numéro d'instance & temps de résolution [s]\\
 \hline
 10 & 349.2\\
 \hline
-\end{tabular}
+\end{tabular} 
+\\ \\ \\
+\noindent
+La grille obtenue pour le fichier \textit{9.txt} est la suivante:
+
+\begin{figure}[H]
+\includegraphics[scale=0.5]{grille_9.png}
+\end{figure} 
 \newpage
 \section{La PLNE}
 \subsection{Modélisation}
 \noindent
 \textbf{Q10} \\
 \noindent
-Soit $l_i$ la i-ième ligne avec une séquence associée $(s_1, \hdots ,s_k)$. Si le bloc $t$ de longueur $s_t$ commence par la case $(i,j)$, alors les cases $(i,j)$ à $(i,j+s_t-1)$ doivent être noires, ce qui s'exprime comme: $$ y_{ij}^{t} \leq \frac{\sum_{l = j}^{j+s_t-1} x_{il}}{s_t}$$\\ 
+Soit $l_i$ la i-ième ligne avec une séquence associée $(s_1, \hdots ,s_k)$. Si le bloc $t$ de longueur $s_t$ commence par la case $(i,j)$, alors les cases $(i,j)$ à $(i,j+s_t-1)$ doivent être noires, ce qui s'exprime comme: \footnote{Cette formulation n'est pas exacte. En fait, elle ne prend pas en compte le fait qu'on peut potentiellement dépasser les bordes dans la somme. Ce problème est reglé dans la question 13 en limitant le nombre de variables.} 
+ $$ y_{ij}^{t} \leq \frac{\sum_{l = j}^{j+s_t-1} x_{il}}{s_t}$$\\ 
 \noindent
 De manière analogue, on a pour la j-ième colonne $c_j$ possédant la séquence $(s'_{1}, \hdots , s'_{k'})$ : 
 $$ z_{ij}^{t} \leq \frac{\sum_{l = i}^{i+s'_t-1} x_{lj}}{s_t}$$
@@ -83,8 +92,34 @@ Avec les notations de la question précédente, on souhaite d'exprimer le fait q
 $$ y_{ij}^t \leq \sum_{l = j+s_t+1}^N y_{il}^{t+1} , t \in \lbrace 1, \hdots, k-1 \rbrace$$
 \noindent
 De manière analogue, on obtient pour les colonnes: 
-$$ z_{ij}^t \leq \sum_{l = j+s_t+1}^M y_{lj}^{t+1} , t \in \lbrace 1, \hdots, k'-1 \rbrace$$
-\textbf{Q12} \\
+$$ z_{ij}^t \leq \sum_{l = j+s_t+1}^M z_{lj}^{t+1} , t \in \lbrace 1, \hdots, k'-1 \rbrace$$
+\textbf{Q12} \\ 
+\noindent
+Pour formuler le PLNE, il faut exprimer à l'aide des variables définies précédament les contraintes suivantes: \\
+\begin{itemize}
+\item[(1)] Un bloc ne doit apparaître qu'une seule fois sur une ligne.
+\item[(2)] Un bloc ne doit apparaître qu'une seule fois sur une colonne.
+\item[(3)] Il doit y avoir un bon nombre de cases noires par ligne.
+\item[(4)] Il doit y avoir un bon nombre de cases noires par colonne.
+\item[(5)] Le bloc $t+1$ d'une ligne doit se trouver après le bloc $t$.
+\item[(6)] Le bloc $t+1$ d'une colonne doit se trouver après le bloc $t$.
+\item[(7)] Si le bloc $t$ d'une ligne demarre à la colonne $j$, alors les cases qui suivent doivent être noires sur la longueur du bloc.
+\item[(8)] Si le bloc $t$ d'une colonne demarre à la colonne $i$, alors les cases qui suivent doivent être noires sur la longueur du bloc. \\ \\    
+\end{itemize} 
+\noindent
+On en déduit alors le PLNE suivant: \\ \\
+$$\min \sum_{i = 1}^M \sum_{j = 1}^N x_{ij}$$
+\begin{eqnarray}
+\sum_{j = 1}^N y_{ij} & = & 1 \ \ \ \forall i \in \lbrace 1, \hdots, M \rbrace \\
+\sum_{i = 1}^M z_{ij} & = & 1 \ \ \ \forall j \in \lbrace 1, \hdots, N \rbrace \\
+\sum_{j = 1}^N x_{ij} - \sum_{l = 1}^k s_l & = & 0 \ \ \ \forall i \in \lbrace 1, \hdots, M \rbrace \\
+\sum_{i = 1}^M x_{ij} - \sum_{l = 1}^{k'} s_l & = & 0 \ \ \  \forall j \in \lbrace 1, \hdots, N \rbrace \\
+y_{ij}^t & \leq & \sum_{l = j+s_t+1}^N y_{il}^{t+1} , t \in \lbrace 1, \hdots, k-1 \rbrace, i \in \lbrace 1, \hdots, M \rbrace \\
+z_{ij}^t & \leq & \sum_{l = j+s_t+1}^M z_{lj}^{t+1} , t \in \lbrace 1, \hdots, k'-1 \rbrace, j \in \lbrace 1, \hdots, N \rbrace \\
+y_{ij}^{t} & \leq & \frac{\sum_{l = j}^{j+s_t-1} x_{il}}{s_t} , i \in \lbrace 1, \hdots, M \rbrace, t \in \lbrace 1, \hdots, k-1 \rbrace \\
+z_{ij}^{t} & \leq & \frac{\sum_{l = i}^{i+s'_t-1} x_{lj}}{s_t}, j \in \lbrace 1, \hdots, N \rbrace, t \in \lbrace 1, \hdots, k'-1 \rbrace
+\end{eqnarray}
+
 \subsection{Implantations et tests}
 \noindent
 \textbf{Q13}
