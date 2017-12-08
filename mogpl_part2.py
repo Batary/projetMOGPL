@@ -7,6 +7,11 @@ from constants import *
 import datetime
 import timeit
 import time
+import multiprocessing
+from multiprocessing import Queue
+import os
+
+from mogpl_part1_v2 import *
 
 # xij = 1 si (i,j) case noire, 0 si case blanche
 # yijt = 1 si le bloc t de la ligne i commence en (i,j), 0 sinon
@@ -21,7 +26,7 @@ import time
 #   x[i,j] € {0,1}
 #
 #   sum( y[i, j, t] = 1 ) , t € [0..sli-1]
-#TODO a completer
+# TODO a completer
 
 
 # Q13
@@ -91,7 +96,7 @@ def get_model(sequences):
 			# parcours des sequences de la ligne i
 			for t in range(len(sl[i])):
 				# yijt
-				if sum(sl[i][:t]) + t <= j and sum(sl[i][t:]) + len(sl[i]) - (t+1) <= nbcolumns - j:
+				if sum(sl[i][:t]) + t <= j and sum(sl[i][t:]) + len(sl[i]) - (t + 1) <= nbcolumns - j:
 					y[i][j].append(m.addVar(vtype=GRB.BINARY, lb=0, name="y(%d,%d,%d)" % (i, j, t)))
 				else:
 					y[i][j].append(0)
@@ -99,24 +104,24 @@ def get_model(sequences):
 			# parcours des sequences de la colonne j
 			for t in range(len(sc[j])):
 				# zijt
-				if sum(sc[j][:t]) + t <= i and sum(sc[j][t:]) + len(sc[j]) - (t+1) <= nblines - i:
+				if sum(sc[j][:t]) + t <= i and sum(sc[j][t:]) + len(sc[j]) - (t + 1) <= nblines - i:
 					z[i][j].append(m.addVar(vtype=GRB.BINARY, lb=0, name="z(%d,%d,%d)" % (i, j, t)))
 				else:
 					z[i][j].append(0)
-					
-			# pour t variant de 0 a nb_blocks dans la ligne/colonne :
-			# si sum(block[t]) + t < i : yijt = 0
-			# si sum(block[t]) + t < j : zijt = 0
-			# --> on peut retirer ces éléments du modèle
+				
+				# pour t variant de 0 a nb_blocks dans la ligne/colonne :
+				# si sum(block[t]) + t < i : yijt = 0
+				# si sum(block[t]) + t < j : zijt = 0
+				# --> on peut retirer ces éléments du modèle
 	
 	# maj du modele pour integrer les nouvelles variables
 	m.update()
 	
-	obj = LinExpr();
-	obj = sum([x[i][j] for i in range(nblines) for j in range(nbcolumns)])
+	# obj = LinExpr();
+	# obj = sum([x[i][j] for i in range(nblines) for j in range(nbcolumns)])
 	
 	# definition de l'objectif
-	m.setObjective(obj, GRB.MINIMIZE)
+	m.setObjective(0, GRB.MINIMIZE)
 	
 	# Definition des contraintes
 	for i in range(nblines):
@@ -124,10 +129,9 @@ def get_model(sequences):
 		for t in range(len(sl[i])):
 			# un bloc ne doit apparaitre qu'une seule fois sur une ligne
 			m.addConstr(sum([y[i][j][t] for j in range(nbcolumns)]) == 1)
-			
-		# il doit y avoir le bon nombre de cases par ligne
-		m.addConstr(sum(x[i][:]) - sum(sl[i]) == 0)
 		
+		# il doit y avoir le bon nombre de cases par ligne
+		m.addConstr(sum(x[i]) - sum(sl[i]) == 0)
 		
 		for j in range(nbcolumns):
 			
@@ -143,11 +147,6 @@ def get_model(sequences):
 					m.addConstr(y[i][j][t] - sum([x[i][j + k] for k in range(sl[i][t])]) / sl[i][t] <= 0)
 				# else:
 				# 	m.addConstr(y[i][j][t] == 0)  # a enlever en retirant les variables
-				
-				# for k in range(sl[i][t]):
-				# 	# le bloc t+1 doit etre a au moins st+1 cases du bloc t
-				# 	if t + 1 < len(sl[i]) and j + k + 1 < nbcolumns:
-				# 		m.addConstr(y[i][j + k + 1][t + 1] - (1 - y[i][j][t]) <= 0)
 			
 			# parcours des blocs d'une colonne
 			for t in range(len(sc[j])):
@@ -161,77 +160,123 @@ def get_model(sequences):
 					m.addConstr(z[i][j][t] - sum([x[i + k][j] for k in range(sc[j][t])]) / sc[j][t] <= 0)
 				# else:
 				# 	m.addConstr(z[i][j][t] == 0)  # a enlever en retirant les variables
-				
-				# for k in range(sc[j][t]):
-				# 	# le bloc t+1 doit etre a au moins st+1 cases du bloc t
-				# 	if t + 1 < len(sc[j]) and i + k + 1 < nblines:
-				# 		m.addConstr(z[i + k + 1][j][t + 1] - (1 - z[i][j][t]) <= 0)
 	
 	for j in range(nbcolumns):
 		# un bloc ne doit apparaitre qu'une seule fois sur une colonne
 		for t in range(len(sc[j])):
 			m.addConstr(sum([z[i][j][t] for i in range(nblines)]) == 1)
-			
-		# il doit y avoir le bon nombre de cases par ligne
-		# print(sum(sc[j]))
-		m.addConstr(sum([x[i][j] for i in range(nblines)]) - sum(sc[j]) == 0)
 		
+		# il doit y avoir le bon nombre de cases par ligne
+		m.addConstr(sum([x[i][j] for i in range(nblines)]) - sum(sc[j]) == 0)
+	
 	return m, x, y, z
 
 
-def solve(m):
+# Appel rapide a la fonction de resolution en PLNE.
+# Le out_q sert a renvoyer le resultat en cas d'appel avec timeout.
+def algo_plne(sequences, out_q=Queue()):
+	m, x, y, z = (get_model(sequences))
 	m.optimize()
-	
-	"""
-	print
-	'Solution optimale:'
-	for j in range(2):
-		print
-		'w%d' % j, '=', w[j].x
-	print
-	"""
-
-
-# print('Valeur de la fonction objectif :', m.objVal)
-
-# affiche la figure correspondant a la solution
-def printfigure(x):
 	nb_lines = len(x)
 	nb_columns = len(x[0])
 	A = [[x[i][j].x for j in range(nb_columns)] for i in range(nb_lines)]
+	out_q.put(A)
+	return A
+
+# Appel rapide a la fonction de resolution en programmation dynamique.
+# Le out_q sert a renvoyer le resultat en cas d'appel avec timeout.
+def algo_dynamique(sequences, out_q=Queue()):
+	A = np.full((len(sequences), len(sequences[0])), const.NOT_COLORED)
+	coloration(A, sequences)
+	out_q.put(A)
+	return A
+
+
+# affiche la figure correspondant a la solution
+def printfigure(A):
+	# nb_lines = len(x)
+	# nb_columns = len(x[0])
+	# A = [[x[i][j].x for j in range(nb_columns)] for i in range(nb_lines)]
+	
+	print(A)
 	
 	plt.imshow(A, cmap="Greys", interpolation="nearest")
-	# plt.rcParams["figure.figsize"] = (50,50)
 	ax = plt.gca()
 	
-	# Major ticks
-	ax.set_xticks(np.arange(0, nb_columns, 1));
-	ax.set_yticks(np.arange(0, nb_lines, 1));
-	
 	# Minor ticks
-	ax.set_xticks(np.arange(-.5, nb_columns, 1), minor=True);
-	ax.set_yticks(np.arange(-.5, nb_lines, 1), minor=True);
+	ax.set_xticks(np.arange(-.5, len(A[0]), 1), minor=True);
+	ax.set_yticks(np.arange(-.5, len(A), 1), minor=True);
 	
-	ax.grid(which="minor", color='grey', linestyle='-', linewidth=2)
+	ax.grid(which="minor", color='grey', linestyle=':', linewidth=1)
 	
 	plt.show()
 
 
-# ts = time.time()
-# st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d-%H-%M-%S')
-# plt.savefig(str(st) + "image" + str(num) + ".png")
+# test des differentes methodes (passees dans un tableau)
+# path : le chemin du dossier des instances
+# timeout : temps en secondes (0 = aucun)
+# min : le numero de la premiere instance a traiter
+# max : la derniere instance
+# save : booleen pour sauvegarder les images calculees
+# print_image : afficher les images calculees /!| ATTENTION met en pause l'execution !
+def testMethods(path, functions, timeout=120, min=0, max=16, save=False, print_image=False):
+	all_times = [[] for x in range(min, max+1)]
+	out_q = Queue()
+	
+	for i in range(min, max + 1):
+		
+		sequences = read_file(os.path.join(path, str(i) + ".txt"))
+		for f in functions:
+			print("\nTest sur " + str(i) + ".txt : " + f.__name__ + " ...\n")
+			start_time = time.time()
+			if __name__ == '__main__':
+				# executer le processus en parallele
+				p = multiprocessing.Process(target=f, args=(sequences, out_q))
+				p.start()
+				p.join(timeout)
+				
+				# On stoppe p s'il est trop long
+				if p.is_alive():
+					print("\nTemps dépassé, arret du processus de l'instance " + str(i) + " (" + f.__name__  + ")")
+					p.terminate()
+					p.join()
+					execution_time = timeout * 1.1  # on rajoute 10% pour distinguer de ceux qui ont termine juste avant la fin
+				else:
+					execution_time = time.time() - start_time
+					print("\nTest terminé, temps d'execution de l'instance " + str(i) + " (" + f.__name__  + ") : " + str(execution_time) + "\n")
+					A = out_q.get()
+					
+					#generation de la figure
+					plt.imshow(A, cmap="Greys", interpolation="nearest")
+					ax = plt.gca()
+					
+					# Minor ticks
+					ax.set_xticks(np.arange(-.5, len(A[0]), 1), minor=True);
+					ax.set_yticks(np.arange(-.5, len(A), 1), minor=True);
+					
+					ax.grid(which="minor", color='grey', linestyle=':', linewidth=1)
+					
+					st = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H-%M-%S')
+					
+					if (save): plt.savefig("image" + str(i) + "_" + f.__name__ + "_" + str(st) + ".png")
+					
+					if (print_image): plt.show()
+			
+			all_times[i].append(execution_time)
 
+	# generation et sauvegarde du graphe
+	plt.gcf().clear()
+	plt.plot(all_times)
+	
+	st = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H-%M-%S')
+	plt.savefig("benchmark_all" + "_" + str(st) + ".png")
+	
+	print("\nLe graphe a été enregistré dans la racine.")  # affichage d'une seule instance
+	plt.show()
 
-m, x, y, z = (get_model(read_file("instances/16.txt")))
-solve(m)
+# m, x, y, z = (get_model(read_file("instances/14.txt")))
+# m.optimize()
+#
+# printfigure(x)
 
-# for i in range(len(y)):
-# 	for j in range(len(y[i])):
-# 		for t in range(len(y[i][j])):
-# 			if y[i][j][t].x != 0: print(y[i][j][t])
-# for i in range(len(z)):
-# 	for j in range(len(z[i])):
-# 		for t in range(len(z[i][j])):
-# 			if z[i][j][t].x != 0: print(z[i][j][t])
-
-printfigure(x)
+testMethods("instances", [algo_plne, algo_dynamique], timeout=5, min=0, max=3, save=False, print_image=False)
