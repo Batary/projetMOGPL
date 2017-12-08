@@ -22,7 +22,7 @@ import time
 					etc.
 """
 def read_file(file_name):
-	sequences = [[], []] #première liste pour descriptions des lignes, deuxième piur description des colonnes
+	sequences = [[], []] #première liste pour descriptions des lignes, deuxième pour description des colonnes
 	
 	indice = const.LINES # d'abord, on décrit les lignes - on va remplir sequences[0]
 
@@ -140,7 +140,7 @@ def colour_line_bis(line, line_sequence):
 			box_before = (j-line_sequence[l]<0 or line[j-line_sequence[l]] != const.BLACK)
 			#3) La case aprés soit n'existe pas, soit elle n'est pas coloriée au noir
 			box_after = (line_length == j+1 or line[j+1] != const.BLACK)
-			#4) La rélation de récursion est bien vérifiée - on peut remplire les cases avant le début de ce bloc (et avant la case "de séparation") 
+			#4) La relation de récursion est bien vérifiée - on peut remplire les cases avant le début de ce bloc (et avant la case "de séparation")
 			#avec l blocs précédentes
 			rec = (l== 0 or (j- line_sequence[l] - 1 >= 0 and T[j-line_sequence[l]-1][l]))
 			
