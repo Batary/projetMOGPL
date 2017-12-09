@@ -12,6 +12,7 @@ from multiprocessing import Queue
 import os
 
 from mogpl_part1_v2 import *
+from mogpl_part3 import *
 
 # xij = 1 si (i,j) case noire, 0 si case blanche
 # yijt = 1 si le bloc t de la ligne i commence en (i,j), 0 sinon
@@ -183,10 +184,11 @@ def algo_plne(sequences, out_q=Queue()):
 	out_q.put(A)
 	return A
 
+
 # Appel rapide a la fonction de resolution en programmation dynamique.
 # Le out_q sert a renvoyer le resultat en cas d'appel avec timeout.
 def algo_dynamique(sequences, out_q=Queue()):
-	A = np.full((len(sequences), len(sequences[0])), const.NOT_COLORED)
+	A = np.full((len(sequences[0]), len(sequences[1])), const.NOT_COLORED)
 	coloration(A, sequences)
 	out_q.put(A)
 	return A
@@ -194,11 +196,7 @@ def algo_dynamique(sequences, out_q=Queue()):
 
 # affiche la figure correspondant a la solution
 def printfigure(A):
-	# nb_lines = len(x)
-	# nb_columns = len(x[0])
-	# A = [[x[i][j].x for j in range(nb_columns)] for i in range(nb_lines)]
-	
-	print(A)
+	# print(A)
 	
 	plt.imshow(A, cmap="Greys", interpolation="nearest")
 	ax = plt.gca()
@@ -220,7 +218,7 @@ def printfigure(A):
 # save : booleen pour sauvegarder les images calculees
 # print_image : afficher les images calculees /!| ATTENTION met en pause l'execution !
 def testMethods(path, functions, timeout=120, min=0, max=16, save=False, print_image=False):
-	all_times = [[] for x in range(min, max+1)]
+	all_times = [[] for x in range(min, max + 1)]
 	out_q = Queue()
 	
 	for i in range(min, max + 1):
@@ -237,16 +235,23 @@ def testMethods(path, functions, timeout=120, min=0, max=16, save=False, print_i
 				
 				# On stoppe p s'il est trop long
 				if p.is_alive():
-					print("\nTemps dépassé, arret du processus de l'instance " + str(i) + " (" + f.__name__  + ")")
+					print("\nTemps dépassé, arret du processus de l'instance " + str(i) + " (" + f.__name__ + ")")
 					p.terminate()
 					p.join()
 					execution_time = timeout * 1.1  # on rajoute 10% pour distinguer de ceux qui ont termine juste avant la fin
 				else:
 					execution_time = time.time() - start_time
-					print("\nTest terminé, temps d'execution de l'instance " + str(i) + " (" + f.__name__  + ") : " + str(execution_time) + "\n")
+					print(
+						"\nTest terminé, temps d'execution de l'instance " + str(i) + " (" + f.__name__ + ") : " + str(
+							execution_time) + "\n")
 					A = out_q.get()
 					
-					#generation de la figure
+					# test de la validite du resultat
+					if any(A[l][c] == const.NOT_COLORED for l in range(len(A)) for c in range(len(A[0]))):
+						print("La solution n'est pas valide.\n")
+						execution_time = timeout * 1.1
+					
+					# generation de la figure
 					plt.imshow(A, cmap="Greys", interpolation="nearest")
 					ax = plt.gca()
 					
@@ -262,21 +267,35 @@ def testMethods(path, functions, timeout=120, min=0, max=16, save=False, print_i
 					
 					if (print_image): plt.show()
 			
-			all_times[i].append(execution_time)
-
+			all_times[i - min].append(execution_time)
+	
 	# generation et sauvegarde du graphe
 	plt.gcf().clear()
-	plt.plot(all_times)
+	# plt.plot(all_times)
+	# line_up, = plt.plot([1, 2, 3], label='Line 2')
+	# line_down, = plt.plot([3, 2, 1], label='Line 1')
+	# plt.legend(handles=[line_up, line_down])
+	
+	lines = [[] for f in range(len(functions))]
+	for f in range(len(functions)):
+		lines[f], = plt.plot([all_times[i][f] for i in range(len(all_times))], label=functions[f].__name__)
+	plt.legend(handles=lines)
 	
 	st = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H-%M-%S')
 	plt.savefig("benchmark_all" + "_" + str(st) + ".png")
 	
-	print("\nLe graphe a été enregistré dans la racine.")  # affichage d'une seule instance
+	print("\nLe graphe a été enregistré dans le répertoire courant.")  # affichage d'une seule instance
 	plt.show()
+
+
+# Ancienne methode pour avoir une instance
 
 # m, x, y, z = (get_model(read_file("instances/14.txt")))
 # m.optimize()
-#
+# nb_lines = len(x)
+# nb_columns = len(x[0])
+# A = [[x[i][j].x for j in range(nb_columns)] for i in range(nb_lines)]
 # printfigure(x)
 
-testMethods("instances", [algo_plne, algo_dynamique], timeout=5, min=0, max=3, save=False, print_image=False)
+# Test global de toutes les methodes avec toutes les instances
+testMethods("instances", [algo_plne, algo_dynamique], timeout=120, min=0, max=16, save=True, print_image=False)
