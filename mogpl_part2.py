@@ -186,7 +186,7 @@ def algo_plne(sequences, out_q=Queue()):
 # Appel rapide a la fonction de resolution en programmation dynamique.
 # Le out_q sert a renvoyer le resultat en cas d'appel avec timeout.
 def algo_dynamique(sequences, out_q=Queue()):
-	A = np.full((len(sequences), len(sequences[0])), const.NOT_COLORED)
+	A = np.full((len(sequences[0]), len(sequences[1])), const.NOT_COLORED)
 	coloration(A, sequences)
 	out_q.put(A)
 	return A
