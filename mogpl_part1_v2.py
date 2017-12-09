@@ -186,7 +186,7 @@ def coloration(A, sequences):
 					elif (can_colour[const.WHITE]) and (can_colour[const.BLACK]):
 						A[i][j] = const.NOT_COLORED
 					else:
-						return null #pas de solution
+						return None #pas de solution
 
 			columns_to_see = list(set().union(columns_to_see, new_to_see))
 		
@@ -210,7 +210,7 @@ def coloration(A, sequences):
 					elif (can_colour[const.WHITE]) and (can_colour[const.BLACK]):
 						A[i][j] = const.NOT_COLORED
 					else:
-						return null #pas de solution
+						return None #pas de solution
 			
 			lines_to_see = list(set().union(lines_to_see, new_to_see))
 		
