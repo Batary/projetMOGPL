@@ -262,7 +262,7 @@ def testMethods(path, functions, timeout=120, min=0, max=16, save=False, print_i
 					
 					if (print_image): plt.show()
 			
-			all_times[i].append(execution_time)
+			all_times[i-min].append(execution_time)
 
 	# generation et sauvegarde du graphe
 	plt.gcf().clear()
