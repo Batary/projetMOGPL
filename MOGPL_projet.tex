@@ -28,6 +28,15 @@
 \thispagestyle{empty}
 \newpage
 \section*{Introduction}
+\addtocounter{page}{-1}
+\noindent
+En cadre de ce projet, on s'intéresse au problème de tomographie discrète. \\ \\
+\noindent
+Dans la première partie, on résoud le problème à l'aide de la programmation dynamique, on teste l'algorithme sur plusieurs instance et essaie d'observer et expliquer ses limites. \\ \\
+\noindent
+Souhaitant pouvoir résoudre des grilles plus complexes, on met en oeuvre la résolution à l'aide d'un PLNE. On modélise d'abord le problème comme un PLNE, puis on le test et on compare les solutions avec celles de la méthode précédente. \\ \\ 
+\noindent
+Dans la dernière section du projet, une analyse briève des résultats ainsi que certaines améliorations possibles sont proposées. 
 \newpage
 \section{Raisonnement par la programation dynamique}
 \subsection{Première étape}
@@ -100,11 +109,12 @@ numéro d'instance & temps de résolution [s]\\
 \hline
 \end{tabular} 
 \\ \\ \\
+\newpage
 \noindent
 La grille obtenue pour le fichier \textit{9.txt} est la suivante:
 
 \begin{figure}[H]
-\includegraphics[scale=0.5]{grille_9.png}
+nt\includegraphics[scale=0.5]{09_dynam_fin.png}
 \end{figure} 
 \noindent
 \textbf{Q9} \\
@@ -163,7 +173,60 @@ Ceci correspond au cas dans lequel le premier bloc commence par la première cas
 \noindent
 De manière analogue, le bloc doit finir strictement avant la case $(i, j_f)$ avec 
 $$ j_f = (N-1) - (k-l) - \sum_{t = l+1}^k s_t$$
+\\ \\
+\noindent
+Voici le tableau des temps de calcul avec la méthode PLNE (sans le timeout de 2 minutes) : \\
+\begin{tabular}{|c|c|}
+\hline
+numéro d'instance & temps de résolution [s]\\
+\hline
+\hline
+1  & 0.01\\
+\hline
+2 & 28.47\\
+\hline
+3 & 0.05\\
+\hline
+4 & 29.45\\
+\hline
+5 & 9.54\\
+\hline
+6 & 756\\
+\hline
+7 & 0.27\\
+\hline
+8 & 1.36\\
+\hline
+9 & ?\\
+\hline
+10 & 5.64\\
+\hline
+12 & 216.41\\
+\hline
+13 & 0.88\\
+\hline
+14 & 0.26\\
+\hline
+15 & 176.52\\
+\hline
+16 & 536.6\\ 
+\hline
+
+\end{tabular} 
+\\ \\  \\
+\noindent
+En employant l'algorithme dynamique sur les instances \textit{12.txt} - \textit{16.txt}, on a pu observé qu'aucune d'instances n'a pas été complétément résolue. La comparaison des temps d'exécution (cette fois-ci avec un timeout de 2 minutes) se lit dans un graphe ci-dessous. Les deux grilles obtenues pour l'instance \textit{15.txt} ainsi que toutes les grilles autres obtenues pour différentes méthodes sont fournies dans l'annexe.
+
+\begin{figure}[H]
+\includegraphics[scale=0.7]{temps_exec.png}
+\end{figure} 
+
 
 \section{Pour aller plus loin}
+\noindent
+Dans les sections précédentes, on a pu observé qu'en général, l'algorithme dynamique semble d'être plus efficace en termes de la complexité temporelle que celui du PLNE. Pourtant, l'algorithme dynamique n'assure pas la résolution complète d'une grille. On a alors codé une méthode globale proposée dans le sujet - on a appliqué d'abord l'algorithme dynamique sur la grille. Puis, on a utilisé le PLNE de la section précédente sur les cases non déterminées. Pour exprimer que la case $(i,j)$ est déjà coloriée, on a ajouté une contrainte de la forme 
+$$x_{ij} = 0, \mathrm{resp.} x_{ij} = 1$$ \\ \\
+
 \section*{Conclusion}
+\section*{Annexe}
 \end{document}
