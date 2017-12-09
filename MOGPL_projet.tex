@@ -7,7 +7,28 @@
 \usepackage{float}
 \usepackage{amssymb}
 \usepackage{graphicx}
+
+\title{% \vspace{20mm} 
+        \LARGE \textbf {Un problème de tomographie discrète}\\
+        \vspace{8mm}
+        \large \textbf{MOGPL}\\
+        \vspace{10mm}
+        %\begin{center}
+        %    \includegraphics[scale = 1]{main_image.png}
+        %\end{center}
+        \author{Baptiste JARRY \\ Magdaléna TYDRICHOVA}
+        \large {Master d'informatique M1}\\
+          \vspace{5mm}
+        \large {Université Pierre et Marie Curie \vspace{15mm}}\\ 
+        \date{\vspace{10mm} \textsf{\textrm{\textit{10 décembre 2017}}}}}
+
+
 \begin{document}
+\maketitle
+\thispagestyle{empty}
+\newpage
+\section*{Introduction}
+\newpage
 \section{Raisonnement par la programation dynamique}
 \subsection{Première étape}
 \noindent \textbf{Q1} \\
@@ -35,7 +56,16 @@ On considère dans cette question le dernier cas non traité, c'est à dire le c
 	\item[2.] On suppose maintenant $l \geq 1$.
 	\begin{itemize}
 		\item[(a)] $j < s_l - 1 \Rightarrow T(j,l) = FALSE $ pour le même raison que précédamment.
-		\item[(b)] $j = s_l$ \textbf{A FINIR PLUS TARD!!! (J'ai la flemme...)}
+		\item[(b)] $j = s_l -1$ Comme dans la question 2, $T(j,l) = FALSE $ pour $l>1$. Si $l=1$, $T(j,l) = TRUE$ si et seulement si il n'y a pas de case déjà coloriée à noir avant la case $(i,j)$.
+		\item[(c)] Supposons $j > s_l -1$. On distingue toujours deux cas. 
+		\begin{itemize}
+		\item Soit le $l$-ième bloc finit sur la case $(i,j)$. Dans ce cas là, il faut que la case $(i,j+1)$ n'est pas coloriée à noir (si elle existe). De plus, il faut qu'aucune case entre $(i,j-s_l+1)$ n'est pas coloriée à blanc, et que la case $(i,j-s_l)$ qui précède le bloc n'est pas coloriée à noir. $T(j,l) = TRUE$ si toutes ces conditions sont vérifiées et on a de plus $T(j-s_l, l-1) = TRUE$. 
+		\item Soit le $l$-ième bloc ne finit pas sur la case $(i,j)$. Dans ce cas là, on a $T(j,l) = TRUE$ si et seulement si on a $T(j-1,l) = TRUE$ et la case $(i,j)$ n'est pas coloriée à noir (dans quel cas on ne pourrait pas colorier les $j+1$ premières cases uniquement avec $l$ premières blocs, il y aurait au moins une case du bloc suivant).	\\	
+		
+		\end{itemize}
+Dans les deux cas, on calcule en plus le nombre de cases noires entre les positions $(i,0)$ et $(i,j)$. Si ce nombre dépasse la somme des longueurs des $l$ premiers blocs, alors on ne peut pas colorier $j+1$ premières cases uniquement avec $l$ blocs, en conséquence, $T(j,l) = FALSE$. \\ \\
+\noindent
+De la même manière, si la somme des cases noires entre $(i,j+1) $ et $(i,N-1)$ dépasse la somme des longueurs des blocs $s_{l+1}, \hdots s_k$, on en déduit que $T(j,l) = FALSE$. 
 	\end{itemize}
 \end{itemize}
 \noindent 
@@ -76,6 +106,10 @@ La grille obtenue pour le fichier \textit{9.txt} est la suivante:
 \begin{figure}[H]
 \includegraphics[scale=0.5]{grille_9.png}
 \end{figure} 
+\noindent
+\textbf{Q9} \\
+\noindent
+Si on applique l'algorithme sur l'instance \textit{11.txt}, on observe que aucune case n'a pas pu être coloriée. 
 \newpage
 \section{La PLNE}
 \subsection{Modélisation}
@@ -89,10 +123,10 @@ De manière analogue, on a pour la j-ième colonne $c_j$ possédant la séquence
 $$ z_{ij}^{t} \leq \frac{\sum_{l = i}^{i+s'_t-1} x_{lj}}{s_t}$$
 \textbf{Q11} \\
 Avec les notations de la question précédente, on souhaite d'exprimer le fait que si le bloc $t$ de la i-ième ligne commence à la case $(i,j)$, alors le $(t+1)$-ième bloc ne peut pas commencer avant la case $(i, j+ s_t +1)$. Ce qui se formule par: 
-$$ y_{ij}^t \leq \sum_{l = j+s_t+1}^N y_{il}^{t+1} , t \in \lbrace 1, \hdots, k-1 \rbrace$$
+$$ y_{ij}^t \leq \sum_{l = j+s_t+1}^{N-1} y_{il}^{t+1} , t \in \lbrace 1, \hdots, k-1 \rbrace$$
 \noindent
 De manière analogue, on obtient pour les colonnes: 
-$$ z_{ij}^t \leq \sum_{l = j+s_t+1}^M z_{lj}^{t+1} , t \in \lbrace 1, \hdots, k'-1 \rbrace$$
+$$ z_{ij}^t \leq \sum_{l = j+s_t+1}^{M-1} z_{lj}^{t+1} , t \in \lbrace 1, \hdots, k'-1 \rbrace$$
 \textbf{Q12} \\ 
 \noindent
 Pour formuler le PLNE, il faut exprimer à l'aide des variables définies précédament les contraintes suivantes: \\
@@ -108,19 +142,28 @@ Pour formuler le PLNE, il faut exprimer à l'aide des variables définies préc�
 \end{itemize} 
 \noindent
 On en déduit alors le PLNE suivant: \\ \\
-$$\min \sum_{i = 1}^M \sum_{j = 1}^N x_{ij}$$
+$$\min \sum_{i = 0}^{M-1} \sum_{j = 0}^{N-1} x_{ij}$$
 \begin{eqnarray}
-\sum_{j = 1}^N y_{ij} & = & 1 \ \ \ \forall i \in \lbrace 1, \hdots, M \rbrace \\
-\sum_{i = 1}^M z_{ij} & = & 1 \ \ \ \forall j \in \lbrace 1, \hdots, N \rbrace \\
-\sum_{j = 1}^N x_{ij} - \sum_{l = 1}^k s_l & = & 0 \ \ \ \forall i \in \lbrace 1, \hdots, M \rbrace \\
-\sum_{i = 1}^M x_{ij} - \sum_{l = 1}^{k'} s_l & = & 0 \ \ \  \forall j \in \lbrace 1, \hdots, N \rbrace \\
-y_{ij}^t & \leq & \sum_{l = j+s_t+1}^N y_{il}^{t+1} , t \in \lbrace 1, \hdots, k-1 \rbrace, i \in \lbrace 1, \hdots, M \rbrace \\
-z_{ij}^t & \leq & \sum_{l = j+s_t+1}^M z_{lj}^{t+1} , t \in \lbrace 1, \hdots, k'-1 \rbrace, j \in \lbrace 1, \hdots, N \rbrace \\
-y_{ij}^{t} & \leq & \frac{\sum_{l = j}^{j+s_t-1} x_{il}}{s_t} , i \in \lbrace 1, \hdots, M \rbrace, t \in \lbrace 1, \hdots, k-1 \rbrace \\
-z_{ij}^{t} & \leq & \frac{\sum_{l = i}^{i+s'_t-1} x_{lj}}{s_t}, j \in \lbrace 1, \hdots, N \rbrace, t \in \lbrace 1, \hdots, k'-1 \rbrace
+\sum_{j = 0}^{N-1} y_{ij} & = & 1 \ \ \ \forall i \in \lbrace 0, \hdots, M-1 \rbrace \\
+\sum_{i = 0}^{M-1} z_{ij} & = & 1 \ \ \ \forall j \in \lbrace 0, \hdots, N-1 \rbrace \\
+\sum_{j = 0}^{N-1} x_{ij} - \sum_{l = 1}^k s_l & = & 0 \ \ \ \forall i \in \lbrace 0, \hdots, M-1 \rbrace \\
+\sum_{i = 0}^{M-1} x_{ij} - \sum_{l = 1}^{k'} s_l & = & 0 \ \ \  \forall j \in \lbrace 0, \hdots, N-1 \rbrace \\
+y_{ij}^t & \leq & \sum_{l = j+s_t+1}^{N-1} y_{il}^{t+1} , t \in \lbrace 1, \hdots, k-1 \rbrace, i \in \lbrace 0, \hdots, M-1 \rbrace \\
+z_{ij}^t & \leq & \sum_{l = j+s_t+1}^{M-1} z_{lj}^{t+1} , t \in \lbrace 1, \hdots, k'-1 \rbrace, j \in \lbrace 0, \hdots, N-1 \rbrace \\
+y_{ij}^{t} & \leq & \frac{\sum_{l = j}^{j+s_t-1} x_{il}}{s_t} , i \in \lbrace 0, \hdots, M-1 \rbrace, t \in \lbrace 1, \hdots, k-1 \rbrace \\
+z_{ij}^{t} & \leq & \frac{\sum_{l = i}^{i+s'_t-1} x_{lj}}{s_t}, j \in \lbrace 0, \hdots, N-1 \rbrace, t \in \lbrace 1, \hdots, k'-1 \rbrace
 \end{eqnarray}
 
 \subsection{Implantations et tests}
 \noindent
-\textbf{Q13}
+\textbf{Q13} \\ 
+\noindent
+Soit $l_i$ la i-ième ligne avec la séquence associée $(s_1, \hdots, s_k)$. Le $l$-ième bloc peut commencer au plus tôt sur la case $(i,j_d)$ avec $$j_d = l + \sum_{t = 1}^ {l-1} s_t$$
+Ceci correspond au cas dans lequel le premier bloc commence par la première case de $l_i$ et tous les prédécesseurs du $l$-ième bloc sont separés entre eux par exactement une case. \\ \\
+\noindent
+De manière analogue, le bloc doit finir strictement avant la case $(i, j_f)$ avec 
+$$ j_f = (N-1) - (k-l) - \sum_{t = l+1}^k s_t$$
+
+\section{Pour aller plus loin}
+\section*{Conclusion}
 \end{document}
