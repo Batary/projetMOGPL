@@ -8,6 +8,8 @@ import time
 import multiprocessing
 from multiprocessing import Queue
 
+from mogpl_part2 import *
+
 #TODO a terminer
 
 # Algorithme tentant d'abord la resolution par programmation dynamique, puis la resolution en PLNE avec la valeur de retour.
@@ -110,6 +112,16 @@ def algo_hybride(sequences, out_q=Queue()):
 		
 		# il doit y avoir le bon nombre de cases par ligne
 		m.addConstr(sum([x[i][j] for i in range(nblines)]) - sum(sc[j]) == 0)
+		
+	#Pretraitement par l'algorithme dynamique: 
+	pre = algo_dynamique(sequences, out_q)
+	
+	#Ajout des contraintes pour fixer les valeurs des x[i][j] trouvées lors d'un pretraitement
+	for i in range(len(pre)):
+		for j in range(len(pre[0])):
+			#Si la case a été coloriée lors de pretraitement:
+			if pre[i][j] != const.NOT_COLORED:
+				m.addConstr(x[i][j] == pre[i][j]) #on fixe sa valeur à l'aide d'une contrainte
 	
 	m.optimize()
 	nb_lines = len(x)
