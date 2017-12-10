@@ -30,11 +30,11 @@
 \section*{Introduction}
 \addtocounter{page}{-1}
 \noindent
-En cadre de ce projet, on s'intéresse au problème de tomographie discrète. \\ \\
+Dans le cadre de ce projet, on s'intéresse au problème de tomographie discrète. \\ \\
 \noindent
-Dans la première partie, on résoud le problème à l'aide de la programmation dynamique, on teste l'algorithme sur plusieurs instance et essaie d'observer et expliquer ses limites. \\ \\
+Dans la première partie, on résoud le problème à l'aide de la programmation dynamique, on teste l'algorithme sur plusieurs instances et essaie d'observer et expliquer ses limites. \\ \\
 \noindent
-Souhaitant pouvoir résoudre des grilles plus complexes, on met en oeuvre la résolution à l'aide d'un PLNE. On modélise d'abord le problème comme un PLNE, puis on le test et on compare les solutions avec celles de la méthode précédente. \\ \\ 
+Souhaitant pouvoir résoudre des grilles plus complexes, on met en oeuvre la résolution à l'aide d'un PLNE. On modélise d'abord le problème comme un PLNE, puis on le teste et on compare les solutions avec celles de la méthode précédente. \\ \\ 
 \noindent
 Dans la dernière section du projet, une brève analyse des résultats ainsi que certaines améliorations possibles sont proposées. 
 \newpage
@@ -53,7 +53,7 @@ Si on a calculé tous les $T(i,j)$, la case $T(m-1, k)$ nous indique si on peut 
 \end{itemize}
 \noindent
 \textbf{Q3} \\
-On considère dans cette question le dernier cas non traité, c'est à dire le cas où $l \geq 1, j > s_l -1$. Il y a deux possibilités: 
+On considère dans cette question le dernier cas non traité, c'est-à-dire le cas où $l \geq 1, j > s_l -1$. Il y a deux possibilités: 
 \begin{itemize}
 	\item Soit la case $(i,j)$ sera blanche après la coloration : dans ce cas on aura $T(j,l) = T(j-1,l)$. 
 	\item Soit la case $(i,j)$ sera noire après la coloration, ce qui signifie que le bloc $s_l$ se termine à la case $(i,j)$. On en déduit qu'il commence à la case $(i, j - (s_l -1))$. Les blocs étant séparés par au moins une case blanche, la case $(i, j-s_l)$ sera blanche. Si $j-s_l > 0$, alors $T(j, l) = T(j-s_l -1, l-1)$. Si $j-s_l = 0$, alors $T(j,l) = TRUE$ si et seulement si $l = 1$.  
@@ -64,15 +64,15 @@ On considère dans cette question le dernier cas non traité, c'est à dire le c
 	\item[1.] Si $l = 0$ et $j \in \lbrace 0, \hdots, m-1 \rbrace$: On peut colorier les $j+1$ premières cases avec zéro bloc si aucune des cases $0, \hdots, j$ n'est pas déjà coloriée en noir (ce qui impliquerait la présence d'un bloc ou au moins d'une partie d'un bloc). \\
 	\item[2.] On suppose maintenant $l \geq 1$.
 	\begin{itemize}
-		\item[(a)] $j < s_l - 1 \Rightarrow T(j,l) = FALSE $ pour le même raison que précédamment.
-		\item[(b)] $j = s_l -1$ Comme dans la question 2, $T(j,l) = FALSE $ pour $l>1$. Si $l=1$, $T(j,l) = TRUE$ si et seulement si il n'y a pas de case déjà coloriée à noir avant la case $(i,j)$.
+		\item[(a)] $j < s_l - 1 \Rightarrow T(j,l) = FALSE $ pour la même raison que précédemment.
+		\item[(b)] $j = s_l -1$ Comme dans la question 2, $T(j,l) = FALSE $ pour $l>1$. Si $l=1$, $T(j,l) = TRUE$ si et seulement si il n'y a pas de case déjà coloriée en noir avant la case $(i,j)$.
 		\item[(c)] Supposons $j > s_l -1$. On distingue toujours deux cas. 
 		\begin{itemize}
-		\item Soit le $l$-ième bloc finit sur la case $(i,j)$. Dans ce cas là, il faut que la case $(i,j+1)$ n'est pas coloriée à noir (si elle existe). De plus, il faut qu'aucune case entre $(i,j-s_l+1)$ n'est pas coloriée à blanc, et que la case $(i,j-s_l)$ qui précède le bloc n'est pas coloriée à noir. $T(j,l) = TRUE$ si toutes ces conditions sont vérifiées et on a de plus $T(j-s_l, l-1) = TRUE$. 
-		\item Soit le $l$-ième bloc ne finit pas sur la case $(i,j)$. Dans ce cas là, on a $T(j,l) = TRUE$ si et seulement si on a $T(j-1,l) = TRUE$ et la case $(i,j)$ n'est pas coloriée à noir (auquel cas on ne pourrait pas colorier les $j+1$ premières cases uniquement avec $l$ premières blocs, il y aurait au moins une case du bloc suivant).	\\	
+		\item Soit le $l$-ième bloc finit sur la case $(i,j)$. Dans ce cas, il faut que la case $(i,j+1)$ ne soit pas en noir (si elle existe). De plus, il ne faut aucune case blanche jusqu'à la case $(i,j-s_l+1)$ ; en outre, la case $(i,j-s_l)$ qui précède le bloc ne doit pas etre coloriée en noir. $T(j,l) = TRUE$ si toutes ces conditions sont vérifiées et si on a également $T(j-s_l, l-1) = TRUE$. 
+		\item Soit le $l$-ième bloc ne finit pas sur la case $(i,j)$. Dans ce cas, on a $T(j,l) = TRUE$ si et seulement si on a $T(j-1,l) = TRUE$ et si la case $(i,j)$ n'est pas déjà noire (auquel cas on ne pourrait pas colorier les $j+1$ premières cases uniquement avec les $l$ premiers blocs, car il y aurait au moins une case du bloc suivant).	\\	
 		
 		\end{itemize}
-Dans les deux cas, on calcule en plus le nombre de cases noires entre les positions $(i,0)$ et $(i,j)$. Si ce nombre dépasse la somme des longueurs des $l$ premiers blocs, alors on ne peut pas colorier $j+1$ premières cases uniquement avec $l$ blocs, en conséquence, $T(j,l) = FALSE$. \\ \\
+Dans les deux cas, on calcule en plus le nombre de cases noires entre les positions $(i,0)$ et $(i,j)$. Si ce nombre dépasse la somme des longueurs des $l$ premiers blocs, alors on ne peut pas colorier les $j+1$ premières cases uniquement avec ces $l$ blocs, et on aura donc $T(j,l) = FALSE$. \\ \\
 \noindent
 De la même manière, si la somme des cases noires entre $(i,j+1) $ et $(i,N-1)$ dépasse la somme des longueurs des blocs $s_{l+1}, \hdots s_k$, on en déduit que $T(j,l) = FALSE$. 
 	\end{itemize}
@@ -119,37 +119,37 @@ La grille obtenue pour le fichier \textit{9.txt} est la suivante:
 \noindent
 \textbf{Q9} \\
 \noindent
-Si on applique l'algorithme sur l'instance \textit{11.txt}, on observe que aucune case n'a pas pu être coloriée. Si on essaie de résoudre cette instance "de tête", on voit que pour satisfaire les condition qu'il y a exactement une case noire dans la colonne, et que les blocs sont séparés par au moins une case blanche, il y a une unique solution qui est la suivante: \\ 
+Si on applique l'algorithme sur l'instance \textit{11.txt}, on observe qu'aucune case n'a pu être coloriée. Si on essaie de résoudre cette instance "de tête", on voit que pour satisfaire les conditions il y a exactement une case noire dans la colonne, et que les blocs sont séparés par au moins une case blanche, il y a une unique solution qui est la suivante: \\ 
 \begin{figure}[H]
  \includegraphics[scale=0.5]{image11_algo_PLNE.png}
 \end{figure}
 \noindent
-Pourtant, l'algorithme dynamique ne regarde qu'une unique ligne ou colonne en même temps (il ne ragarde pas qu'est-ce qui se passe "dans la future"). Pour cette raison, d'après lui, chacune des cases peut être coloriée en noir et blanc au début. Il ne peut alors rien colorier. 
+Pourtant, l'algorithme dynamique ne regarde qu'une seule ligne ou colonne en même temps (il ne regarde pas ce qui se passe "dans le futur"). Pour cette raison, d'après lui, chacune des cases peut être coloriée en noir ou en blanc au début. Il ne peut donc rien colorier dans la figure. 
 \newpage
 \section{La PLNE}
 \subsection{Modélisation}
 \noindent
 \textbf{Q10} \\
 \noindent
-Soit $l_i$ la i-ième ligne avec une séquence associée $(s_1, \hdots ,s_k)$. Si le bloc $t$ de longueur $s_t$ commence par la case $(i,j)$, alors les cases $(i,j)$ à $(i,j+s_t-1)$ doivent être noires, ce qui s'exprime comme: \footnote{Cette formulation n'est pas exacte. En fait, elle ne prend pas en compte le fait qu'on peut potentiellement dépasser les bordes dans la somme. Ce problème est reglé dans la question 13 en limitant le nombre de variables.} 
+Soit $l_i$ la i-ième ligne avec une séquence associée $(s_1, \hdots ,s_k)$. Si le bloc $t$ de longueur $s_t$ commence par la case $(i,j)$, alors les cases $(i,j)$ à $(i,j+s_t-1)$ doivent être noires, ce qui s'exprime comme: \footnote{Cette formulation n'est pas exacte. En fait, elle ne prend pas en compte le fait qu'on peut potentiellement dépasser les bords dans la somme. Ce problème est reglé dans la question 13 en limitant le nombre de variables.} 
  $$ y_{ij}^{t} \leq \frac{\sum_{l = j}^{j+s_t-1} x_{il}}{s_t}$$\\ 
 \noindent
 De manière analogue, on a pour la j-ième colonne $c_j$ possédant la séquence $(s'_{1}, \hdots , s'_{k'})$ : 
 $$ z_{ij}^{t} \leq \frac{\sum_{l = i}^{i+s'_t-1} x_{lj}}{s_t}$$
 \textbf{Q11} \\
-Avec les notations de la question précédente, on souhaite d'exprimer le fait que si le bloc $t$ de la i-ième ligne commence à la case $(i,j)$, alors le $(t+1)$-ième bloc ne peut pas commencer avant la case $(i, j+ s_t +1)$. Ce qui se formule par: 
+Avec les notations de la question précédente, on souhaite exprimer le fait que si le bloc $t$ de la i-ième ligne commence à la case $(i,j)$, alors le $(t+1)$-ième bloc ne peut pas commencer avant la case $(i, j+ s_t +1)$. Ce qui se formule par: 
 $$ y_{ij}^t \leq \sum_{l = j+s_t+1}^{N-1} y_{il}^{t+1} , t \in \lbrace 1, \hdots, k-1 \rbrace$$
 \noindent
 De manière analogue, on obtient pour les colonnes: 
 $$ z_{ij}^t \leq \sum_{l = j+s_t+1}^{M-1} z_{lj}^{t+1} , t \in \lbrace 1, \hdots, k'-1 \rbrace$$
 \textbf{Q12} \\ 
 \noindent
-Pour formuler le PLNE, il faut exprimer à l'aide des variables définies précédament les contraintes suivantes: \\
+Pour formuler le PLNE, il faut exprimer à l'aide des variables définies précédemment les contraintes suivantes: \\
 \begin{itemize}
 \item[(1)] Un bloc ne doit apparaître qu'une seule fois sur une ligne.
 \item[(2)] Un bloc ne doit apparaître qu'une seule fois sur une colonne.
-\item[(3)] Il doit y avoir un bon nombre de cases noires par ligne.
-\item[(4)] Il doit y avoir un bon nombre de cases noires par colonne.
+\item[(3)] Il doit y avoir le bon nombre de cases noires par ligne.
+\item[(4)] Il doit y avoir le bon nombre de cases noires par colonne.
 \item[(5)] Le bloc $t+1$ d'une ligne doit se trouver après le bloc $t$.
 \item[(6)] Le bloc $t+1$ d'une colonne doit se trouver après le bloc $t$.
 \item[(7)] Si le bloc $t$ d'une ligne demarre à la colonne $j$, alors les cases qui suivent doivent être noires sur la longueur du bloc.
@@ -176,7 +176,7 @@ z_{ij}^{t} & \leq & \frac{\sum_{l = i}^{i+s'_t-1} x_{lj}}{s_t}, j \in \lbrace 0,
 Soit $l_i$ la i-ième ligne avec la séquence associée $(s_1, \hdots, s_k)$. Le $l$-ième bloc peut commencer au plus tôt sur la case $(i,j_d)$ avec $$j_d = l + \sum_{t = 1}^ {l-1} s_t$$
 Ceci correspond au cas dans lequel le premier bloc commence par la première case de $l_i$ et tous les prédécesseurs du $l$-ième bloc sont separés entre eux par exactement une case. \\ \\
 \noindent
-De manière analogue, le bloc doit finir strictement avant la case $(i, j_f)$ avec 
+De manière analogue, le bloc doit finir strictement avant la case $(i, j_f)$ avec : 
 $$ j_f = (N-1) - (k-l) - \sum_{t = l+1}^k s_t$$
 \\ \\
 \noindent
@@ -220,7 +220,7 @@ numéro d'instance & temps de résolution [s]\\
 \end{tabular} 
 \\ \\  \\
 \noindent
-En employant l'algorithme dynamique sur les instances \textit{12.txt} - \textit{16.txt}, on a pu observé qu'aucune d'instances n'a pas été complétément résolue. La comparaison des temps d'exécution (cette fois-ci avec un timeout de 2 minutes) se lit dans un graphe ci-dessous. Les deux grilles obtenues pour l'instance \textit{15.txt} sont fournises ci-dessous. \\ 
+En employant l'algorithme dynamique sur les instances \textit{12.txt} - \textit{16.txt}, nous avons observé qu'aucune des instances n'a été complétement résolue. La comparaison des temps d'exécution (cette fois-ci avec un timeout de 2 minutes) se lit dans le graphe ci-dessous. Les deux grilles obtenues pour l'instance \textit{15.txt} sont fournies ci-dessous. \\ 
 
 \begin{figure}[H]
 \includegraphics[scale=0.7]{temps_exec.png}
@@ -229,28 +229,28 @@ En employant l'algorithme dynamique sur les instances \textit{12.txt} - \textit{
 
 \section{Pour aller plus loin}
 \noindent
-Dans les sections précédentes, on a pu observé qu'en général, l'algorithme dynamique semble d'être plus efficace en termes de la complexité temporelle que celui du PLNE. Pourtant, l'algorithme dynamique n'assure pas la résolution complète d'une grille. On a alors codé une méthode globale proposée dans le sujet - on a appliqué d'abord l'algorithme dynamique sur la grille. Puis, on a utilisé le PLNE de la section précédente sur les cases non déterminées. Pour exprimer que la case $(i,j)$ est déjà coloriée, on fixe la borne inférieure de la variable $x_{ij}$ à 1 si la case était noire, ou bien la borne supérieure à 0 si la case était blanche. \\ \\
+Dans les sections précédentes, on a pu observer qu'en général, l'algorithme dynamique semble être plus efficace en termes de la complexité temporelle que celui du PLNE. Pourtant, l'algorithme dynamique n'assure pas la résolution complète d'une grille. On a alors codé une méthode globale proposée dans le sujet : on a d'abord appliqué l'algorithme dynamique sur la grille. Puis, on a utilisé le PLNE de la section précédente sur les cases non déterminées. Pour exprimer que la case $(i,j)$ est déjà coloriée, on fixe la borne inférieure de la variable $x_{ij}$ à 1 si la case était noire, ou bien la borne supérieure à 0 si la case était blanche. \\ \\
 \noindent
-Dans le graphique suivant, on donne les temps d'exécution en employant l'algorithme hybride ou bien le PLNE. Pour avoir une idée sur l'impact de l'étape de pretraitement sur la vitesse de la résulution par le PLNE, on trace également la durée de l'étape du pretraitement. Pour bien voir les différences temporelles entre algorithmes, on ne considère pas le timeout de 2 minutes : \\ 
+Dans le graphique suivant, on donne les temps d'exécution en employant l'algorithme hybride ou bien le PLNE. Pour avoir une idée sur l'impact de l'étape de prétraitement sur la vitesse de résolution par le PLNE, on trace également la durée de l'étape du pretraitement. Pour bien voir les différences temporelles entre algorithmes, on ne considère pas le timeout de 2 minutes : \\ 
 
 \begin{figure}[H]
 \includegraphics[scale=0.6]{temps_exec_tout.png}
 \end{figure}
 \noindent
-On peut constater qu'en général, la durée de l'étape du PLNE est plus courte si on fait l'étape du pretraitement. Ceci semble d'être logique parce que l'algorithme \textit{Branch \& Bound} utilisé pour la résolution du PLNE est en thérioe exponentielle. Fixer la valeur de certaines variables peut considérablement réduire l'arbre de recherche. Pourtant, on voit que sur les instances 13 et 14, l'algorithme hybride est moins efficace que la résolution par PLNE pure. Ceci est dû au fait que la durée d'exécution du PLNE est négligéable devant la durée de l'étape du pretraitement. \\ \\
+On peut constater qu'en général, la durée de l'étape du PLNE est plus courte si on fait l'étape de prétraitement. Cette tendance est logique parce que l'algorithme \textit{Branch \& Bound} utilisé pour la résolution du PLNE est de complexité exponentielle. Fixer la valeur de certaines variables peut considérablement réduire l'arbre de recherche. Pourtant, on voit que sur les instances 13 et 14, l'algorithme hybride est moins efficace que la résolution par PLNE pure. Ceci est dû au fait que la durée d'exécution du PLNE est négligeable devant la durée de l'étape du prétraitement. \\ \\
 \noindent
 
 \section*{Conclusion}
 \noindent
 On a codé plusieurs méthodes de résolution d'un problème de tomographie discrète. \\ \\
 \noindent
-On a vu pas mal d'instances résolvables complétément par l'algorithme dynamique. Par contre, on s'est assuré que cette méthode n'est pas suffisante pour la résolution des grilles plus complexes. On peut en conclure qu'il n'est pas souhaitable d'utiliser la méthode dynamique pure. \\ \\
+On a vu pas mal d'instances résolvables complètement par l'algorithme dynamique. En revanche, nous avons constaté que cette méthode n'est pas suffisante pour la résolution des grilles plus complexes. On peut en conclure qu'il n'est pas souhaitable d'utiliser la méthode dynamique pure. \\ \\
 \noindent
-Puis, on a pu comparer expérimentalement l'algorithme de PLNE avec l'algorithme hybride (avec l'étape de pretraitement). Sur la plupart de grilles complexes, l'algorithme hybride performait mieux. Sur les grilles plus simples (grilles \textit{1.txt} - \textit{10.txt}), l'algorithme hybride ne diffère pas de l'algorithme dynamique pure - l'étape de pretraitement est suffisante pour résoudre la grille. Vu que même sur cette classe d'instances l'algorithme dynamique performait légèrement mieux que l'algorithme de PLNE, il semble d'être souhaitable de préférer l'algorithme hybride au celui de PLNE. \\ \\
+Puis, on a pu comparer expérimentalement l'algorithme de PLNE avec l'algorithme hybride (avec l'étape de pretraitement). Sur la plupart des grilles complexes, l'algorithme hybride avait de meilleures performances. Sur les grilles plus simples (grilles \textit{1.txt} - \textit{10.txt}), l'algorithme hybride ne diffère pas de l'algorithme dynamique pur - l'étape de prétraitement est suffisante pour résoudre la grille. Etant donné que sur cette classe d'instances l'algorithme dynamique performait légèrement mieux que l'algorithme de PLNE, il semble être souhaitable de préférer l'algorithme hybride à celui de PLNE. \\ \\
 \noindent
-Pourtant, il y a aussi pas mal d'instances sur lesquelles l'algorithme de PLNE fonctionne beaucoup mieux que l'algorithme hybride. Idéalement, il faudrait d'être capable de classifier (facilement) les instances avant la résolution pour savoir si on face une instance facilement résolvable par la méthode dynamique, par la méthode de PLNE ou bien par l'algorithme dynamique. \\ \\
+Pourtant, il y a aussi plusieurs instances sur lesquelles l'algorithme de PLNE fonctionne beaucoup mieux que l'algorithme hybride. Idéalement, il faudrait être capable de classifier (facilement) les instances avant la résolution pour savoir s'il s'agit d'une instance facilement résolvable par la méthode dynamique, par la méthode de PLNE ou bien par l'algorithme dynamique. \\ \\
 \noindent
-Pour conclure, il nous semble souhaitable d'utiliser la méthode hybride qui donne en général de résultats solides. Il faudrait faire plus de tests et analyses sur les instances pour avoir des conclusions plus précises. \\  
+Pour conclure, il nous semble souhaitable d'utiliser la méthode hybride qui donne en général des résultats solides. Il faudrait faire plus de tests et analyses sur d'autres instances pour avoir des conclusions plus précises. \\  
 \noindent 
 \newpage
 \end{document}
