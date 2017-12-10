@@ -18,25 +18,6 @@ from mogpl_part1_v2 import *
 # zijt = 1 si le bloc t de la colonne j commence en (i,j), 0 sinon
 
 
-# Q12
-# min z = sum(x[i, j]
-# s.c.
-# (pour tout i,j)
-#
-#   x[i,j] € {0,1}
-#
-#   sum( y[i, j, t] = 1 ) , t € [0..sli-1]
-# TODO a completer
-
-
-# Q13
-# pour t variant de 0 a nb_blocks dans la ligne/colonne :
-# si sum(block[t]) + t < i : yijt = 0
-# si sum(block[t]) + t < j : zijt = 0
-# --> on peut retirer ces éléments du modèle
-
-
-
 """
 @param file_name: le nom d'un fichier contenant une instance du problème
 @return sequences: 	une liste de deux listes. La première contient la description des lignes (une liste par ligne),
@@ -183,6 +164,7 @@ def algo_plne(sequences, out_q=Queue()):
 	out_q.put(A)
 	return A
 
+
 # Appel rapide a la fonction de resolution en programmation dynamique.
 # Le out_q sert a renvoyer le resultat en cas d'appel avec timeout.
 def algo_dynamique(sequences, out_q=Queue()):
@@ -220,7 +202,7 @@ def printfigure(A):
 # save : booleen pour sauvegarder les images calculees
 # print_image : afficher les images calculees /!| ATTENTION met en pause l'execution !
 def testMethods(path, functions, timeout=120, min=0, max=16, save=False, print_image=False):
-	all_times = [[] for x in range(min, max+1)]
+	all_times = [[] for x in range(min, max + 1)]
 	out_q = Queue()
 	
 	for i in range(min, max + 1):
@@ -237,16 +219,18 @@ def testMethods(path, functions, timeout=120, min=0, max=16, save=False, print_i
 				
 				# On stoppe p s'il est trop long
 				if p.is_alive():
-					print("\nTemps dépassé, arret du processus de l'instance " + str(i) + " (" + f.__name__  + ")")
+					print("\nTemps dépassé, arret du processus de l'instance " + str(i) + " (" + f.__name__ + ")")
 					p.terminate()
 					p.join()
 					execution_time = timeout * 1.1  # on rajoute 10% pour distinguer de ceux qui ont termine juste avant la fin
 				else:
 					execution_time = time.time() - start_time
-					print("\nTest terminé, temps d'execution de l'instance " + str(i) + " (" + f.__name__  + ") : " + str(execution_time) + "\n")
+					print(
+						"\nTest terminé, temps d'execution de l'instance " + str(i) + " (" + f.__name__ + ") : " + str(
+							execution_time) + "\n")
 					A = out_q.get()
 					
-					#generation de la figure
+					# generation de la figure
 					plt.imshow(A, cmap="Greys", interpolation="nearest")
 					ax = plt.gca()
 					
@@ -262,8 +246,8 @@ def testMethods(path, functions, timeout=120, min=0, max=16, save=False, print_i
 					
 					if (print_image): plt.show()
 			
-			all_times[i-min].append(execution_time)
-
+			all_times[i - min].append(execution_time)
+	
 	# generation et sauvegarde du graphe
 	plt.gcf().clear()
 	plt.plot(all_times)
@@ -273,6 +257,7 @@ def testMethods(path, functions, timeout=120, min=0, max=16, save=False, print_i
 	
 	print("\nLe graphe a été enregistré dans la racine.")  # affichage d'une seule instance
 	plt.show()
+
 
 # m, x, y, z = (get_model(read_file("instances/14.txt")))
 # m.optimize()
