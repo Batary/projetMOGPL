@@ -117,12 +117,14 @@ def algo_hybride(sequences, out_q=Queue()):
 	pre = np.full((len(sequences[0]), len(sequences[1])), const.NOT_COLORED)
 	coloration(pre, sequences)
 	
-	#Ajout des contraintes pour fixer les valeurs des x[i][j] trouvées lors d'un pretraitement
+	#On fixe la valeur des cases déterminées: 
 	for i in range(len(pre)):
 		for j in range(len(pre[0])):
 			#Si la case a été coloriée lors de pretraitement:
-			if pre[i][j] != const.NOT_COLORED:
-				m.addConstr(x[i][j] == pre[i][j]) #on fixe sa valeur à l'aide d'une contrainte
+			if pre[i][j] == const.BLACK: #pour la case noire
+				x[i][j].LB = const.BLACK #on fixe la borne inférieure de la variable correspondante à 1
+			elif pre[i][j] == const.WHITE: #pour la case blanche
+				x[i][j].UB = const.WHITE #on fixe la borne supérieure de la variable correspondante à 0
 	
 	m.optimize()
 	nb_lines = len(x)
