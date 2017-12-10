@@ -8,7 +8,7 @@ import time
 import multiprocessing
 from multiprocessing import Queue
 
-from mogpl_part2 import *
+from mogpl_part1_v2 import coloration
 
 #TODO a terminer
 
@@ -114,7 +114,8 @@ def algo_hybride(sequences, out_q=Queue()):
 		m.addConstr(sum([x[i][j] for i in range(nblines)]) - sum(sc[j]) == 0)
 		
 	#Pretraitement par l'algorithme dynamique: 
-	pre = algo_dynamique(sequences, out_q)
+	pre = np.full((len(sequences[0]), len(sequences[1])), const.NOT_COLORED)
+	coloration(pre, sequences)
 	
 	#Ajout des contraintes pour fixer les valeurs des x[i][j] trouvées lors d'un pretraitement
 	for i in range(len(pre)):

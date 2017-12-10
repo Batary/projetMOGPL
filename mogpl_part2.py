@@ -227,6 +227,7 @@ def testMethods(path, functions, timeout=120, min=0, max=16, save=False, print_i
 		for f in functions:
 			print("\nTest sur " + str(i) + ".txt : " + f.__name__ + " ...\n")
 			start_time = time.time()
+			execution_time = timeout * 1.1  # on rajoute 10% pour distinguer de ceux qui ont termine juste avant la fin
 			if __name__ == '__main__':
 				# executer le processus en parallele
 				p = multiprocessing.Process(target=f, args=(sequences, out_q))
@@ -238,7 +239,6 @@ def testMethods(path, functions, timeout=120, min=0, max=16, save=False, print_i
 					print("\nTemps dépassé, arret du processus de l'instance " + str(i) + " (" + f.__name__ + ")")
 					p.terminate()
 					p.join()
-					execution_time = timeout * 1.1  # on rajoute 10% pour distinguer de ceux qui ont termine juste avant la fin
 				else:
 					execution_time = time.time() - start_time
 					print(
@@ -271,10 +271,6 @@ def testMethods(path, functions, timeout=120, min=0, max=16, save=False, print_i
 	
 	# generation et sauvegarde du graphe
 	plt.gcf().clear()
-	# plt.plot(all_times)
-	# line_up, = plt.plot([1, 2, 3], label='Line 2')
-	# line_down, = plt.plot([3, 2, 1], label='Line 1')
-	# plt.legend(handles=[line_up, line_down])
 	
 	lines = [[] for f in range(len(functions))]
 	for f in range(len(functions)):
@@ -298,4 +294,4 @@ def testMethods(path, functions, timeout=120, min=0, max=16, save=False, print_i
 # printfigure(x)
 
 # Test global de toutes les methodes avec toutes les instances
-testMethods("instances", [algo_plne, algo_dynamique], timeout=120, min=0, max=16, save=True, print_image=False)
+testMethods("instances", [algo_plne, algo_dynamique, algo_hybride], timeout=5, min=0, max=16, save=False, print_image=False)
