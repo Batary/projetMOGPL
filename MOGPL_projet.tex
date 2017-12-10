@@ -224,9 +224,29 @@ En employant l'algorithme dynamique sur les instances \textit{12.txt} - \textit{
 
 \section{Pour aller plus loin}
 \noindent
-Dans les sections précédentes, on a pu observé qu'en général, l'algorithme dynamique semble d'être plus efficace en termes de la complexité temporelle que celui du PLNE. Pourtant, l'algorithme dynamique n'assure pas la résolution complète d'une grille. On a alors codé une méthode globale proposée dans le sujet - on a appliqué d'abord l'algorithme dynamique sur la grille. Puis, on a utilisé le PLNE de la section précédente sur les cases non déterminées. Pour exprimer que la case $(i,j)$ est déjà coloriée, on a ajouté une contrainte de la forme 
-$$x_{ij} = 0, \mathrm{resp.} x_{ij} = 1$$ \\ \\
+Dans les sections précédentes, on a pu observé qu'en général, l'algorithme dynamique semble d'être plus efficace en termes de la complexité temporelle que celui du PLNE. Pourtant, l'algorithme dynamique n'assure pas la résolution complète d'une grille. On a alors codé une méthode globale proposée dans le sujet - on a appliqué d'abord l'algorithme dynamique sur la grille. Puis, on a utilisé le PLNE de la section précédente sur les cases non déterminées. Pour exprimer que la case $(i,j)$ est déjà coloriée, on fixe la borne inférieure de la variable $x_{ij}$ à 1 si la case était noire, ou bien la borne supérieure à 0 si la case était blanche. \\ \\
+\noindent
+Dans le graphique suivant, on donne les temps d'exécution en employant l'algorithme hybride ou bien le PLNE. Pour avoir une idée sur l'impact de l'étape de pretraitement sur la vitesse de la résulution par le PLNE, on trace également la durée de l'étape du pretraitement. Pour bien voir les différences temporelles entre algorithmes, on ne considère pas le timeout de 2 minutes : \\ 
+
+\begin{figure}[H]
+\includegraphics[scale=0.6]{temps_exec_tout.png}
+\end{figure}
+\noindent
+On peut constater qu'en général, la durée de l'étape du PLNE est plus courte si on fait l'étape du pretraitement. Ceci semble d'être logique parce que l'algorithme \textit{Branch \& Bound} utilisé pour la résolution du PLNE est en thérioe exponentielle. Fixer la valeur de certaines variables peut considérablement réduire l'arbre de recherche. Pourtant, on voit que sur les instances 13 et 14, l'algorithme hybride est moins efficace que la résolution par PLNE pure. Ceci est dû au fait que la durée d'exécution du PLNE est négligéable devant la durée de l'étape du pretraitement. \\ \\
+\noindent
 
 \section*{Conclusion}
+\noindent
+On a codé plusieurs méthodes de résolution d'un problème de tomographie discrète. \\ \\
+\noindent
+On a vu pas mal d'instances résolvables complétément par l'algorithme dynamique. Par contre, on s'est assuré que cette méthode n'est pas suffisante pour la résolution des grilles plus complexes. On peut en conclure qu'il n'est pas souhaitable d'utiliser la méthode dynamique pure. \\ \\
+\noindent
+Puis, on a pu comparer expérimentalement l'algorithme de PLNE avec l'algorithme hybride (avec l'étape de pretraitement). Sur la plupart de grilles complexes, l'algorithme hybride performait mieux. Sur les grilles plus simples (grilles \textit{1.txt} - \textit{10.txt}), l'algorithme hybride ne diffère pas de l'algorithme dynamique pure - l'étape de pretraitement est suffisante pour résoudre la grille. Vu que même sur cette classe d'instances l'algorithme dynamique performait légèrement mieux que l'algorithme de PLNE, il semble d'être souhaitable de préférer l'algorithme hybride au celui de PLNE. \\ \\
+\noindent
+Pourtant, il y a aussi pas mal d'instances sur lesquelles l'algorithme de PLNE fonctionne beaucoup mieux que l'algorithme hybride. Idéalement, il faudrait d'être capable de classifier (facilement) les instances avant la résolution pour savoir si on face une instance facilement résolvable par la méthode dynamique, par la méthode de PLNE ou bien par l'algorithme dynamique. \\ \\
+\noindent
+Pour conclure, il nous semble souhaitable d'utiliser la méthode hybride qui donne en général de résultats solides. Il faudrait faire plus de tests et analyses sur les instances pour avoir des conclusions plus précises. \\  
+\noindent 
+\newpage
 \section*{Annexe}
 \end{document}
