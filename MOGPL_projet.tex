@@ -36,18 +36,18 @@ Dans la première partie, on résoud le problème à l'aide de la programmation 
 \noindent
 Souhaitant pouvoir résoudre des grilles plus complexes, on met en oeuvre la résolution à l'aide d'un PLNE. On modélise d'abord le problème comme un PLNE, puis on le test et on compare les solutions avec celles de la méthode précédente. \\ \\ 
 \noindent
-Dans la dernière section du projet, une analyse briève des résultats ainsi que certaines améliorations possibles sont proposées. 
+Dans la dernière section du projet, une brève analyse des résultats ainsi que certaines améliorations possibles sont proposées. 
 \newpage
-\section{Raisonnement par la programation dynamique}
+\section{Raisonnement par la programmation dynamique}
 \subsection{Première étape}
 \noindent \textbf{Q1} \\
-Si on a calculé tous les $T(i,j)$, la case $T(m-1, k)$ nous indique si on peut colorier les $m$ premières cases de la ligne $l_i$ (donc la ligne entière) avec $k$ premiers blocs (i.e. la séquence entière). \\ \\
+Si on a calculé tous les $T(i,j)$, la case $T(m-1, k)$ nous indique si on peut colorier les $m$ premières cases de la ligne $l_i$ (donc la ligne entière) avec les $k$ premiers blocs (i.e. la séquence entière). \\ \\
 \noindent \textbf{Q2}
 \begin{itemize}
-\item[1.] Si $l = 0$ et $j \in \lbrace 0, \hdots, m-1 \rbrace$, alors $T(j,l) = 0$. En effet, on peut "colorier" n'importe quel nombre de cases avec aucun bloc. \\ 
+\item[1.] Si $l = 0$ et $j \in \lbrace 0, \hdots, m-1 \rbrace$, alors $T(j,l) = 0$. En effet, on peut "colorier" n'importe quel nombre de cases avec zéro bloc. \\ 
 \item[2.] On suppose maintenant $l \geq 1$.
 	\begin{itemize}
-		\item[(a)] $j < s_l -1 \Rightarrow T(j,l) = FALSE$. En effet, cette inégalité signifie que le nombre de cases à colorier ($j+1$) est strictement plus petit que la longueur du dernier bloc. On peut pas donc colorier les $j+1$ premières cases avec le bloc $s_l$, et alors non plus avec la sous-séquence des blocs $(s_1, \hdots, s_l)$. 
+		\item[(a)] $j < s_l -1 \Rightarrow T(j,l) = FALSE$. En effet, cette inégalité signifie que le nombre de cases à colorier ($j+1$) est strictement plus petit que la longueur du dernier bloc. On ne peut donc pas colorier les $j+1$ premières cases avec le bloc $s_l$, et on ne peut donc pas non plus les colorier avec la sous-séquence des blocs $(s_1, \hdots, s_l)$. 
 		\item[(b)] $j = s_l -1 \Leftrightarrow j+1 = s_l$, ce qui signifie que la longueur du dernier bloc est exactement égale au nombre de cases à colorier. On en déduit que $T(j,1) = TRUE$ et $T(j,l) = FALSE$ pour $l > 1$. 
 	\end{itemize}
 \end{itemize}
@@ -55,13 +55,13 @@ Si on a calculé tous les $T(i,j)$, la case $T(m-1, k)$ nous indique si on peut 
 \textbf{Q3} \\
 On considère dans cette question le dernier cas non traité, c'est à dire le cas où $l \geq 1, j > s_l -1$. Il y a deux possibilités: 
 \begin{itemize}
-	\item Soit la case $(i,j)$ restera blanche après la coloration, dans quel cas $T(j,l) = T(j-1,l)$. 
+	\item Soit la case $(i,j)$ sera blanche après la coloration : dans ce cas on aura $T(j,l) = T(j-1,l)$. 
 	\item Soit la case $(i,j)$ sera noire après la coloration, ce qui signifie que le bloc $s_l$ se termine à la case $(i,j)$. On en déduit qu'il commence à la case $(i, j - (s_l -1))$. Les blocs étant séparés par au moins une case blanche, la case $(i, j-s_l)$ sera blanche. Si $j-s_l > 0$, alors $T(j, l) = T(j-s_l -1, l-1)$. Si $j-s_l = 0$, alors $T(j,l) = TRUE$ si et seulement si $l = 1$.  
 \end{itemize}  
 \subsection{Généralisation}
 \noindent\textbf{Q5} \\
 \begin{itemize}
-	\item[1.] Si $l = 0$ et $j \in \lbrace 0, \hdots, m-1 \rbrace$: On peut colorier $j+1$ premières cases avec 0 blocs si aucune de cases $0, \hdots, j$ n'est pas déjà coloriée à noir (ce qui imposerait une présence d'un bloc, ou au moins de sa partie). \\
+	\item[1.] Si $l = 0$ et $j \in \lbrace 0, \hdots, m-1 \rbrace$: On peut colorier les $j+1$ premières cases avec zéro bloc si aucune des cases $0, \hdots, j$ n'est pas déjà coloriée en noir (ce qui impliquerait la présence d'un bloc ou au moins d'une partie d'un bloc). \\
 	\item[2.] On suppose maintenant $l \geq 1$.
 	\begin{itemize}
 		\item[(a)] $j < s_l - 1 \Rightarrow T(j,l) = FALSE $ pour le même raison que précédamment.
@@ -69,7 +69,7 @@ On considère dans cette question le dernier cas non traité, c'est à dire le c
 		\item[(c)] Supposons $j > s_l -1$. On distingue toujours deux cas. 
 		\begin{itemize}
 		\item Soit le $l$-ième bloc finit sur la case $(i,j)$. Dans ce cas là, il faut que la case $(i,j+1)$ n'est pas coloriée à noir (si elle existe). De plus, il faut qu'aucune case entre $(i,j-s_l+1)$ n'est pas coloriée à blanc, et que la case $(i,j-s_l)$ qui précède le bloc n'est pas coloriée à noir. $T(j,l) = TRUE$ si toutes ces conditions sont vérifiées et on a de plus $T(j-s_l, l-1) = TRUE$. 
-		\item Soit le $l$-ième bloc ne finit pas sur la case $(i,j)$. Dans ce cas là, on a $T(j,l) = TRUE$ si et seulement si on a $T(j-1,l) = TRUE$ et la case $(i,j)$ n'est pas coloriée à noir (dans quel cas on ne pourrait pas colorier les $j+1$ premières cases uniquement avec $l$ premières blocs, il y aurait au moins une case du bloc suivant).	\\	
+		\item Soit le $l$-ième bloc ne finit pas sur la case $(i,j)$. Dans ce cas là, on a $T(j,l) = TRUE$ si et seulement si on a $T(j-1,l) = TRUE$ et la case $(i,j)$ n'est pas coloriée à noir (auquel cas on ne pourrait pas colorier les $j+1$ premières cases uniquement avec $l$ premières blocs, il y aurait au moins une case du bloc suivant).	\\	
 		
 		\end{itemize}
 Dans les deux cas, on calcule en plus le nombre de cases noires entre les positions $(i,0)$ et $(i,j)$. Si ce nombre dépasse la somme des longueurs des $l$ premiers blocs, alors on ne peut pas colorier $j+1$ premières cases uniquement avec $l$ blocs, en conséquence, $T(j,l) = FALSE$. \\ \\
