@@ -114,12 +114,17 @@ numéro d'instance & temps de résolution [s]\\
 La grille obtenue pour le fichier \textit{9.txt} est la suivante:
 
 \begin{figure}[H]
-nt\includegraphics[scale=0.5]{09_dynam_fin.png}
+\includegraphics[scale=0.3]{09_dynam_fin.png}
 \end{figure} 
 \noindent
 \textbf{Q9} \\
 \noindent
-Si on applique l'algorithme sur l'instance \textit{11.txt}, on observe que aucune case n'a pas pu être coloriée. 
+Si on applique l'algorithme sur l'instance \textit{11.txt}, on observe que aucune case n'a pas pu être coloriée. Si on essaie de résoudre cette instance "de tête", on voit que pour satisfaire les condition qu'il y a exactement une case noire dans la colonne, et que les blocs sont séparés par au moins une case blanche, il y a une unique solution qui est la suivante: \\ 
+\begin{figure}[H]
+ \includegraphics[scale=0.5]{image11_algo_PLNE.png}
+\end{figure}
+\noindent
+Pourtant, l'algorithme dynamique ne regarde qu'une unique ligne ou colonne en même temps (il ne ragarde pas qu'est-ce qui se passe "dans la future"). Pour cette raison, d'après lui, chacune des cases peut être coloriée en noir et blanc au début. Il ne peut alors rien colorier. 
 \newpage
 \section{La PLNE}
 \subsection{Modélisation}
@@ -215,7 +220,7 @@ numéro d'instance & temps de résolution [s]\\
 \end{tabular} 
 \\ \\  \\
 \noindent
-En employant l'algorithme dynamique sur les instances \textit{12.txt} - \textit{16.txt}, on a pu observé qu'aucune d'instances n'a pas été complétément résolue. La comparaison des temps d'exécution (cette fois-ci avec un timeout de 2 minutes) se lit dans un graphe ci-dessous. Les deux grilles obtenues pour l'instance \textit{15.txt} ainsi que toutes les grilles autres obtenues pour différentes méthodes sont fournies dans l'annexe.
+En employant l'algorithme dynamique sur les instances \textit{12.txt} - \textit{16.txt}, on a pu observé qu'aucune d'instances n'a pas été complétément résolue. La comparaison des temps d'exécution (cette fois-ci avec un timeout de 2 minutes) se lit dans un graphe ci-dessous. Les deux grilles obtenues pour l'instance \textit{15.txt} sont fournises ci-dessous. \\ 
 
 \begin{figure}[H]
 \includegraphics[scale=0.7]{temps_exec.png}
@@ -248,5 +253,4 @@ Pourtant, il y a aussi pas mal d'instances sur lesquelles l'algorithme de PLNE f
 Pour conclure, il nous semble souhaitable d'utiliser la méthode hybride qui donne en général de résultats solides. Il faudrait faire plus de tests et analyses sur les instances pour avoir des conclusions plus précises. \\  
 \noindent 
 \newpage
-\section*{Annexe}
 \end{document}
